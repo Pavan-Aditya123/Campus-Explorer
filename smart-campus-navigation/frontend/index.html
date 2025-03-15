@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Campus Navigation</title>
+    
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <h1>📍 Smart Campus Navigation</h1>
+
+    <label for="startText">Start Location:</label>
+    <input type="text" id="startText" placeholder="Enter Start Location">
+
+    <label for="endText">Destination:</label>
+    <input type="text" id="endText" placeholder="Enter Destination">
+
+    <button id="findRouteBtn">Find Route</button>
+
+    <!-- Map Container -->
+    <div id="map"></div>
+
+    <div id="routeInfo" style="font-size: 16px; font-weight: bold; margin-top: 10px;"></div>
+    <div id="routeDirections"></div> 
+
+
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+    <!-- Custom JS -->
+    <script src="script.js"></script>
+
+</body>
+</html>

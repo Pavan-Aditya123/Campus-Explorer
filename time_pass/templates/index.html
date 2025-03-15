@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Campus Explorer</title>
+    
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- AOS Animation Library -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css">
+    
+    <style>
+        /* Global Styles */
+        :root {
+            --primary-color: #4285f4;
+            --secondary-color: #34a853;
+            --accent-color: #fbbc05;
+            --danger-color: #ea4335;
+            --dark-color: #202124;
+            --light-color: #f8f9fa;
+            --gray-color: #5f6368;
+            --border-color: #dadce0;
+            --shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            line-height: 1.6;
+            color: var(--dark-color);
+            background-color: var(--light-color);
+            overflow-x: hidden;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        ul {
+            list-style: none;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            border-radius: 50px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            border: none;
+            outline: none;
+        }
+
+        .primary-btn {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .primary-btn:hover {
+            background-color: #3367d6;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(66, 133, 244, 0.3);
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .section-header h2 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            position: relative;
+            display: inline-block;
+        }
+
+        .section-header h2::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 50px;
+            height: 3px;
+            background-color: var(--primary-color);
+        }
+
+        .section-header p {
+            color: var(--gray-color);
+            font-size: 1.1rem;
+        }
+
+        /* Header Styles */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem 5%;
+            background-color: white;
+            box-shadow: var(--shadow);
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 1000;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+        }
+
+        .logo i {
+            font-size: 1
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="logo">
+            <i class="fas fa-map-marked-alt"></i>
+            <h1>Campus Explorer</h1>
+        </div>
+        <nav>
+            <ul>
+                <li><a href="#map-section" class="active">Map</a></li>
+                <li><a href="#events-section">Events</a></li>
+                <li><a href="#about-section">About</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content" data-aos="fade-up">
+            <h1>Navigate Your Campus with Ease</h1>
+            <p>Find the shortest path between locations, discover campus events, and never get lost again.</p>
+            <a href="#map-section" class="btn primary-btn">Explore Now</a>
+        </div>
+    </section>
+
+    <!-- Map Section -->
+    <section id="map-section" class="map-section">
+        <div class="section-header" data-aos="fade-up">
+            <h2>Campus Map</h2>
+            <p>Find your way around campus with our interactive map</p>
+        </div>
+        
+        <div class="map-container" data-aos="fade-up">
+            <div class="map-controls">
+                <div class="location-search">
+                    <h3>Find Location</h3>
+                    <div class="search-box">
+                        <input type="text" id="location-search" placeholder="Search for a place...">
+                        <button id="search-btn"><i class="fas fa-search"></i></button>
+                    </div>
+                    <div id="search-results" class="search-results"></div>
+                </div>
+                
+                <div class="path-finder">
+                    <h3>Find Shortest Path</h3>
+                    <select id="start-location" class="location-select">
+                        <option value="">Select start location</option>
+                    </select>
+                    <select id="end-location" class="location-select">
+                        <option value="">Select destination</option>
+                    </select>
+                    <button id="find-path-btn" class="btn primary-btn">Find Path</button>
+                    <div id="path-info" class="path-info"></div>
+                </div>
+            </div>
+            
+            <div id="map"></div>
+        </div>
+    </section>
+
+    <!-- Events Section -->
+    <section id="events-section" class="events-section">
+        <div class="section-header" data-aos="fade-up">
+            <h2>Campus Events</h2>
+            <p>Stay updated with all the events happening around campus</p>
+        </div>
+        
+        <div class="events-container" data-aos="fade-up">
+            <div class="tabs">
+                <button class="tab-btn active" data-tab="upcoming-events">Upcoming Events</button>
+                <button class="tab-btn" data-tab="expiring-events">Expiring Soon</button>
+                <button class="tab-btn" data-tab="add-event">Add Event</button>
+            </div>
+            
+            <div class="tab-content">
+                <!-- Upcoming Events Tab -->
+                <div id="upcoming-events" class="tab-pane active">
+                    <div class="events-list" id="events-list">
+                        <!-- Events will be populated here -->
+                    </div>
+                </div>
+                
+                <!-- Expiring Soon Tab -->
+                <div id="expiring-events" class="tab-pane">
+                    <div class="events-list" id="expiring-events-list">
+                        <!-- Expiring events will be populated here -->
+                    </div>
+                </div>
+                
+                <!-- Add Event Tab -->
+                <div id="add-event" class="tab-pane">
+                    <form id="event-form" class="event-form">
+                        <div class="form-group">
+                            <label for="event-name">Event Name</label>
+                            <input type="text" id="event-name" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="event-venue">Venue</label>
+                            <select id="event-venue" required>
+                                <option value="">Select venue</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="event-date">Date</label>
+                            <input type="date" id="event-date" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="event-time">Time</label>
+                            <input type="time" id="event-time" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="event-description">Description</label>
+                            <textarea id="event-description" rows="4"></textarea>
+                        </div>
+                        
+                        <button type="submit" class="btn primary-btn">Add Event</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about-section" class="about-section">
+        <div class="section-header" data-aos="fade-up">
+            <h2>About Campus Explorer</h2>
+            <p>Learn more about our campus navigation system</p>
+        </div>
+        
+        <div class="about-content" data-aos="fade-up">
+            <div class="about-text">
+                <h3>What is Campus Explorer?</h3>
+                <p>Campus Explorer is a comprehensive campus navigation and event management system designed to help students find their way around campus and stay updated with campus events.</p>
+                
+                <h3>Features</h3>
+                <ul>
+                    <li><i class="fas fa-map-marker-alt"></i> Interactive campus map</li>
+                    <li><i class="fas fa-route"></i> Shortest path finding using Floyd-Warshall Algorithm</li>
+                    <li><i class="fas fa-search-location"></i> Location search</li>
+                    <li><i class="fas fa-calendar-alt"></i> Event management</li>
+                    <li><i class="fas fa-sort-amount-down"></i> Smart event sorting</li>
+                </ul>
+            </div>
+            
+            <div class="about-image">
+                <img src="{{ url_for('static', filename='images/campus.jpg') }}" alt="Campus">
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-logo">
+                <i class="fas fa-map-marked-alt"></i>
+                <h2>Campus Explorer</h2>
+            </div>
+            
+            <div class="footer-links">
+                <h3>Quick Links</h3>
+                <ul>
+                    <li><a href="#map-section">Map</a></li>
+                    <li><a href="#events-section">Events</a></li>
+                    <li><a href="#about-section">About</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-contact">
+                <h3>Contact Us</h3>
+                <p><i class="fas fa-envelope"></i> info@campusexplorer.com</p>
+                <p><i class="fas fa-phone"></i> +1 (123) 456-7890</p>
+            </div>
+        </div>
+        
+        <div class="footer-bottom">
+            <p>&copy; 2023 Campus Explorer. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
+    <!-- AOS Animation Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
+    
+    <!-- Custom JS -->
+    <script src="{{ url_for('static', filename='js/map.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/events.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html> 
