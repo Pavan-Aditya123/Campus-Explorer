@@ -1,0 +1,85 @@
+[
+  {
+    "id": 1,
+    "name": "Orientation Day",
+    "venue_id": 1,
+    "venue_name": "Main Building",
+    "date": "2023-09-01",
+    "time": "09:00",
+    "description": "Welcome event for new students",
+    "created_at": "2023-08-15 10:00:00"
+  },
+  {
+    "id": 2,
+    "name": "Science Fair",
+    "venue_id": 3,
+    "venue_name": "Science Block",
+    "date": "2023-09-15",
+    "time": "10:00",
+    "description": "Annual science exhibition",
+    "created_at": "2023-08-20 14:30:00"
+  },
+  {
+    "id": 3,
+    "name": "Basketball Tournament",
+    "venue_id": 5,
+    "venue_name": "Sports Complex",
+    "date": "2023-09-20",
+    "time": "14:00",
+    "description": "Inter-college basketball competition",
+    "created_at": "2023-08-25 09:15:00"
+  },
+  {
+    "id": 4,
+    "name": "Art Exhibition",
+    "venue_id": 7,
+    "venue_name": "Arts Center",
+    "date": "2023-09-25",
+    "time": "11:00",
+    "description": "Student art showcase",
+    "created_at": "2023-08-30 16:45:00"
+  },
+  {
+    "id": 5,
+    "name": "Tech Symposium",
+    "venue_id": 6,
+    "venue_name": "Engineering Building",
+    "date": "2023-10-05",
+    "time": "09:30",
+    "description": "Technology conference with guest speakers",
+    "created_at": "2023-09-01 11:20:00"
+  },
+  {
+    "id": 6,
+    "name": "bit by bit",
+    "venue_id": 7,
+    "venue_name": "Arts Center",
+    "date": "2025-03-18",
+    "time": "14:30",
+    "end_time": "17:30",
+    "description": "come and enjoy",
+    "created_at": "2025-03-15 22:15:24"
+  },
+  {
+    "id": 7,
+    "name": "quiz",
+    "venue_id": 2,
+    "venue_name": "Library",
+    "date": "2025-03-29",
+    "time": "15:30",
+    "end_time": "18:30",
+    "description": "enjoy it",
+    "created_at": "2025-03-15 22:23:58"
+  },
+  {
+    "id": 8,
+    "name": "games",
+    "venue_id": 6,
+    "venue_name": "Engineering Building",
+    "date": "2025-04-17",
+    "time": "13:30",
+    "end_time": "17:30",
+    "description": "welcome",
+    "created_at": "2025-03-15 22:25:00"
+  }
+]

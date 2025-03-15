@@ -5,6 +5,90 @@ import json
 
 app = Flask(__name__)
 
+# File to store events data
+EVENTS_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'events.json')
+
+# Helper function to load events from file
+def load_events():
+    if os.path.exists(EVENTS_FILE):
+        try:
+            with open(EVENTS_FILE, 'r') as f:
+                return json.load(f)
+        except Exception as e:
+            print(f"Error loading events: {e}")
+    
+    # Default events if file doesn't exist or has errors
+    return [
+        {
+            'id': 1,
+            'name': 'Orientation Day',
+            'venue_id': 1,
+            'venue_name': 'Main Building',
+            'date': '2023-09-01',
+            'time': '09:00',
+            'end_time': '12:00',
+            'description': 'Welcome event for new students',
+            'created_at': '2023-08-15 10:00:00'
+        },
+        {
+            'id': 2,
+            'name': 'Science Fair',
+            'venue_id': 3,
+            'venue_name': 'Science Block',
+            'date': '2023-09-15',
+            'time': '10:00',
+            'end_time': '16:00',
+            'description': 'Annual science exhibition',
+            'created_at': '2023-08-20 14:30:00'
+        },
+        {
+            'id': 3,
+            'name': 'Basketball Tournament',
+            'venue_id': 5,
+            'venue_name': 'Sports Complex',
+            'date': '2023-09-20',
+            'time': '14:00',
+            'end_time': '17:00',
+            'description': 'Inter-college basketball competition',
+            'created_at': '2023-08-25 09:15:00'
+        },
+        {
+            'id': 4,
+            'name': 'Art Exhibition',
+            'venue_id': 7,
+            'venue_name': 'Arts Center',
+            'date': '2023-09-25',
+            'time': '11:00',
+            'end_time': '18:00',
+            'description': 'Student art showcase',
+            'created_at': '2023-08-30 16:45:00'
+        },
+        {
+            'id': 5,
+            'name': 'Tech Symposium',
+            'venue_id': 6,
+            'venue_name': 'Engineering Building',
+            'date': '2023-10-05',
+            'time': '09:30',
+            'end_time': '15:30',
+            'description': 'Technology conference with guest speakers',
+            'created_at': '2023-09-01 11:20:00'
+        }
+    ]
+
+# Helper function to save events to file
+def save_events(events):
+    try:
+        # Ensure directory exists
+        os.makedirs(os.path.dirname(EVENTS_FILE), exist_ok=True)
+        
+        with open(EVENTS_FILE, 'w') as f:
+            json.dump(events, f, indent=2)
+        return True
+    except Exception as e:
+        print(f"Error saving events: {e}")
+        return False
+
 # Routes
 @app.route('/')
 def index():
@@ -193,75 +277,47 @@ def get_shortest_path():
 
 @app.route('/api/events', methods=['GET'])
 def get_events():
-    # Hardcoded events data
-    events = [
-        {
-            'id': 1,
-            'name': 'Orientation Day',
-            'venue_id': 1,
-            'venue_name': 'Main Building',
-            'date': '2023-09-01',
-            'time': '09:00',
-            'description': 'Welcome event for new students',
-            'created_at': '2023-08-15 10:00:00'
-        },
-        {
-            'id': 2,
-            'name': 'Science Fair',
-            'venue_id': 3,
-            'venue_name': 'Science Block',
-            'date': '2023-09-15',
-            'time': '10:00',
-            'description': 'Annual science exhibition',
-            'created_at': '2023-08-20 14:30:00'
-        },
-        {
-            'id': 3,
-            'name': 'Basketball Tournament',
-            'venue_id': 5,
-            'venue_name': 'Sports Complex',
-            'date': '2023-09-20',
-            'time': '14:00',
-            'description': 'Inter-college basketball competition',
-            'created_at': '2023-08-25 09:15:00'
-        },
-        {
-            'id': 4,
-            'name': 'Art Exhibition',
-            'venue_id': 7,
-            'venue_name': 'Arts Center',
-            'date': '2023-09-25',
-            'time': '11:00',
-            'description': 'Student art showcase',
-            'created_at': '2023-08-30 16:45:00'
-        },
-        {
-            'id': 5,
-            'name': 'Tech Symposium',
-            'venue_id': 6,
-            'venue_name': 'Engineering Building',
-            'date': '2023-10-05',
-            'time': '09:30',
-            'description': 'Technology conference with guest speakers',
-            'created_at': '2023-09-01 11:20:00'
-        }
-    ]
+    # Load events from file
+    events = load_events()
     
     sort_by = request.args.get('sort_by', 'created_at')
+    filter_type = request.args.get('filter', None)
     
-    if sort_by == 'created_at':
-        # Sort by creation time (newest first)
-        events.sort(key=lambda x: x['created_at'], reverse=True)
-    elif sort_by == 'expiry':
-        # Sort by expiry time (soonest first)
-        now = datetime.now()
-        for event in events:
+    # Make a copy of events to avoid modifying the original
+    events_copy = events.copy()
+    now = datetime.now()
+    
+    # Add time_left to all events for sorting
+    for event in events_copy:
+        try:
             event_datetime = datetime.strptime(f"{event['date']} {event['time']}", '%Y-%m-%d %H:%M')
             event['time_left'] = (event_datetime - now).total_seconds()
-        
-        events.sort(key=lambda x: x['time_left'])
+        except ValueError:
+            # Handle invalid date/time format
+            event['time_left'] = float('inf')
     
-    return jsonify(events)
+    # Apply filters if specified
+    if filter_type == 'upcoming':
+        # Only include future events
+        events_copy = [e for e in events_copy if e['time_left'] > 0]
+    elif filter_type == 'past':
+        # Only include past events
+        events_copy = [e for e in events_copy if e['time_left'] <= 0]
+    
+    # Apply sorting
+    if sort_by == 'created_at':
+        # Sort by creation time (newest first)
+        events_copy.sort(key=lambda x: x['created_at'], reverse=True)
+    elif sort_by == 'expiry':
+        # Sort by event date/time (soonest first)
+        events_copy.sort(key=lambda x: x['time_left'])
+    
+    # Remove temporary time_left field from response
+    for event in events_copy:
+        if 'time_left' in event:
+            del event['time_left']
+    
+    return jsonify(events_copy)
 
 @app.route('/api/events', methods=['POST'])
 def add_event():
@@ -271,35 +327,89 @@ def add_event():
         return jsonify({'error': 'Missing required fields'}), 400
     
     try:
-        # Get all events
-        events = get_events().json
+        # Validate date and time format
+        try:
+            datetime.strptime(f"{data['date']} {data['time']}", '%Y-%m-%d %H:%M')
+            
+            # Validate end_time if provided
+            if 'end_time' in data:
+                datetime.strptime(f"{data['date']} {data['end_time']}", '%Y-%m-%d %H:%M')
+                
+                # Ensure end_time is after time
+                if data['end_time'] <= data['time']:
+                    return jsonify({'error': 'End time must be after start time'}), 400
+        except ValueError:
+            return jsonify({'error': 'Invalid date or time format. Use YYYY-MM-DD for date and HH:MM for time'}), 400
+        
+        # Validate venue_id is an integer
+        try:
+            venue_id = int(data['venue_id'])
+        except ValueError:
+            return jsonify({'error': 'venue_id must be an integer'}), 400
         
         # Get venue name
         locations = get_locations().json
-        venue = next((loc for loc in locations if loc['id'] == data['venue_id']), None)
+        venue = next((loc for loc in locations if loc['id'] == venue_id), None)
         
         if not venue:
             return jsonify({'error': 'Invalid venue ID'}), 400
         
+        # Load existing events
+        events = load_events()
+        
+        # Generate new ID (max ID + 1)
+        new_id = max([event['id'] for event in events], default=0) + 1
+        
         # Create new event
         new_event = {
-            'id': len(events) + 1,
+            'id': new_id,
             'name': data['name'],
-            'venue_id': data['venue_id'],
+            'venue_id': venue_id,
             'venue_name': venue['name'],
             'date': data['date'],
             'time': data['time'],
+            'end_time': data.get('end_time', ''),
             'description': data.get('description', ''),
             'created_at': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         }
         
-        # In a real app, we would save to database here
-        # For this simplified version, we'll just return the new event
+        # Add to events list
+        events.append(new_event)
         
-        return jsonify(new_event), 201
+        # Save updated events list
+        if save_events(events):
+            return jsonify(new_event), 201
+        else:
+            return jsonify({'error': 'Failed to save event. Check server permissions.'}), 500
         
     except Exception as e:
-        return jsonify({'error': str(e)}), 400
+        print(f"Error in add_event: {str(e)}")
+        return jsonify({'error': f'An error occurred: {str(e)}'}), 400
+
+@app.route('/api/events/<int:event_id>', methods=['DELETE'])
+def delete_event(event_id):
+    try:
+        # Load existing events
+        events = load_events()
+        
+        # Find the event to delete
+        event_index = next((i for i, event in enumerate(events) if event['id'] == event_id), None)
+        
+        if event_index is None:
+            return jsonify({'error': 'Event not found'}), 404
+        
+        # Remove the event
+        deleted_event = events.pop(event_index)
+        
+        # Save updated events list
+        if save_events(events):
+            return jsonify({'message': f'Event "{deleted_event["name"]}" deleted successfully', 'id': event_id}), 200
+        else:
+            return jsonify({'error': 'Failed to save changes after deletion. Check server permissions.'}), 500
+        
+    except Exception as e:
+        print(f"Error in delete_event: {str(e)}")
+        return jsonify({'error': f'An error occurred: {str(e)}'}), 400
 
 if __name__ == '__main__':
     app.run(debug=True) 
