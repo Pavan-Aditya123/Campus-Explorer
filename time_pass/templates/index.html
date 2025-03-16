@@ -939,8 +939,8 @@
             <div class="section-header" style="text-align: center; margin-bottom: 40px;">
                 <h2 style="font-size: 2.5rem; color: #202124; margin-bottom: 15px;">Campus Map</h2>
                 <p style="color: #5f6368; font-size: 1.1rem; max-width: 700px; margin: 0 auto;">Explore our campus with an interactive map. Find buildings, facilities, and navigate easily.</p>
-            </div>
-            
+        </div>
+        
             <div class="map-container" style="position: relative; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); margin-bottom: 30px;">
                 <div id="map" style="height: 500px; width: 100%;"></div>
             </div>
@@ -948,11 +948,11 @@
             <div class="map-info" style="display: flex; flex-wrap: wrap; gap: 20px;">
                 <div id="route-info" style="flex: 1; min-width: 300px; background-color: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); display: none;">
                     <!-- Route information will be displayed here -->
-                </div>
-                
+                    </div>
+                    
                 <div id="route-directions" style="flex: 2; min-width: 300px; background-color: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); display: none;">
                     <!-- Directions will be displayed here -->
-                </div>
+                    </div>
             </div>
         </div>
     </section>
@@ -1012,7 +1012,7 @@
                         <div class="form-group" style="margin-bottom: 20px;">
                             <label for="event-date" style="display: block; margin-bottom: 8px; font-weight: 500; color: #202124;">Date</label>
                             <div class="date-time-container">
-                                <input type="date" id="event-date" required style="width: 100%; padding: 12px 15px; border: 1px solid #dadce0; border-radius: 8px; font-family: 'Poppins', sans-serif; font-size: 0.9rem;">
+                            <input type="date" id="event-date" required style="width: 100%; padding: 12px 15px; border: 1px solid #dadce0; border-radius: 8px; font-family: 'Poppins', sans-serif; font-size: 0.9rem;">
                                 <i class="fas fa-calendar-alt"></i>
                             </div>
                         </div>
@@ -1021,7 +1021,7 @@
                             <div class="form-group" style="flex: 1;">
                                 <label for="event-start-time" style="display: block; margin-bottom: 8px; font-weight: 500; color: #202124;">Start Time</label>
                                 <div class="date-time-container">
-                                    <input type="time" id="event-start-time" required placeholder="Select start time" style="width: 100%; padding: 12px 15px; border: 1px solid #dadce0; border-radius: 8px; font-family: 'Poppins', sans-serif; font-size: 0.9rem;">
+                                <input type="time" id="event-start-time" required placeholder="Select start time" style="width: 100%; padding: 12px 15px; border: 1px solid #dadce0; border-radius: 8px; font-family: 'Poppins', sans-serif; font-size: 0.9rem;">
                                     <i class="fas fa-clock"></i>
                                 </div>
                             </div>
@@ -1029,7 +1029,7 @@
                             <div class="form-group" style="flex: 1;">
                                 <label for="event-end-time" style="display: block; margin-bottom: 8px; font-weight: 500; color: #202124;">End Time</label>
                                 <div class="date-time-container">
-                                    <input type="time" id="event-end-time" required placeholder="Select end time" style="width: 100%; padding: 12px 15px; border: 1px solid #dadce0; border-radius: 8px; font-family: 'Poppins', sans-serif; font-size: 0.9rem;">
+                                <input type="time" id="event-end-time" required placeholder="Select end time" style="width: 100%; padding: 12px 15px; border: 1px solid #dadce0; border-radius: 8px; font-family: 'Poppins', sans-serif; font-size: 0.9rem;">
                                     <i class="fas fa-clock"></i>
                                 </div>
                             </div>
@@ -1320,9 +1320,9 @@
                 let formattedEndTime = 'Not specified';
                 if (event.end_time) {
                     formattedEndTime = new Date(`${event.date}T${event.end_time}`).toLocaleTimeString('en-US', {
-                        hour: '2-digit',
-                        minute: '2-digit'
-                    });
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
                 }
                 
                 // Calculate time remaining
@@ -1524,17 +1524,17 @@
                     return response.json();
                 })
                 .then(data => {
-                    // Reset form
-                    eventForm.reset();
-                    
-                    // Show success notification
-                    showNotification('Event added successfully!', 'success');
+                // Reset form
+                eventForm.reset();
+                
+                // Show success notification
+                showNotification('Event added successfully!', 'success');
                     
                     // Reload events
                     loadEvents('created_at');
-                    
-                    // Switch to upcoming events tab
-                    switchTab(upcomingTab, upcomingPane);
+                
+                // Switch to upcoming events tab
+                switchTab(upcomingTab, upcomingPane);
                 })
                 .catch(error => {
                     console.error('Error adding event:', error);
@@ -1571,8 +1571,8 @@
                     return response.json();
                 })
                 .then(data => {
-                    // Show success notification
-                    showNotification('Event deleted successfully!', 'success');
+                // Show success notification
+                showNotification('Event deleted successfully!', 'success');
                     
                     // Reload events
                     loadEvents('created_at');
@@ -1932,7 +1932,7 @@
             
             // Load events on page load
             loadEvents('created_at');
-
+            
             // Function to show notification
             function showNotification(message, type = 'info') {
                 // Create notification element
@@ -1976,7 +1976,7 @@
                     notification.style.animation = 'fadeOut 0.3s ease-out forwards';
                     setTimeout(() => {
                         if (document.body.contains(notification)) {
-                            notification.remove();
+                    notification.remove();
                         }
                     }, 300);
                 });
@@ -1985,9 +1985,9 @@
                 setTimeout(() => {
                     if (document.body.contains(notification)) {
                         notification.style.animation = 'fadeOut 0.3s ease-out forwards';
-                        setTimeout(() => {
-                            if (document.body.contains(notification)) {
-                                notification.remove();
+                setTimeout(() => {
+                    if (document.body.contains(notification)) {
+                        notification.remove();
                             }
                         }, 300);
                     }
