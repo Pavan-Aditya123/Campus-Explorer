@@ -395,6 +395,95 @@
             box-shadow: 0 8px 15px rgba(66, 133, 244, 0.3);
         }
         
+        /* Enhanced Date and Time Input Styles */
+        input[type="date"],
+        input[type="time"] {
+            position: relative;
+            cursor: pointer;
+            background-color: var(--light-color);
+            transition: all 0.3s ease;
+            padding-right: 30px !important; /* Space for the calendar icon */
+            appearance: none;
+            -webkit-appearance: none;
+            background-image: linear-gradient(to bottom, rgba(255,255,255,0.8), rgba(240,240,240,0.5));
+        }
+        
+        input[type="date"]:focus,
+        input[type="time"]:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(66, 133, 244, 0.2);
+            background-color: white;
+            outline: none;
+            transform: translateY(-2px);
+        }
+        
+        input[type="date"]:hover,
+        input[type="time"]:hover {
+            border-color: var(--primary-color);
+            background-color: rgba(66, 133, 244, 0.05);
+        }
+        
+        /* Custom calendar and clock icons */
+        .date-time-container {
+            position: relative;
+            width: 100%;
+        }
+        
+        .date-time-container i {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--primary-color);
+            pointer-events: none;
+            transition: all 0.3s ease;
+            opacity: 0.7;
+        }
+        
+        .date-time-container:hover i {
+            transform: translateY(-50%) scale(1.1);
+            opacity: 1;
+        }
+        
+        /* Custom styling for calendar picker indicator */
+        input[type="date"]::-webkit-calendar-picker-indicator,
+        input[type="time"]::-webkit-calendar-picker-indicator {
+            background-color: transparent;
+            color: transparent;
+            cursor: pointer;
+            position: absolute;
+            right: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+        }
+        
+        /* Animation for inputs */
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(66, 133, 244, 0.4); }
+            70% { box-shadow: 0 0 0 5px rgba(66, 133, 244, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(66, 133, 244, 0); }
+        }
+        
+        .form-group.focused input {
+            animation: pulse 1.5s infinite;
+        }
+        
+        /* Improved form group styling */
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--dark-color);
+            transition: all 0.3s ease;
+        }
+        
+        .form-group.focused label {
+            color: var(--primary-color);
+            transform: translateY(-2px);
+        }
+        
         /* Time picker custom styles */
         .flatpickr-calendar {
             font-family: 'Poppins', sans-serif;
@@ -402,6 +491,7 @@
             border-radius: 10px;
             border: none;
             width: 300px;
+            animation: fadeIn 0.3s ease-out;
         }
         
         .flatpickr-time {
@@ -460,7 +550,7 @@
             z-index: 9999;
             overflow: hidden;
             max-width: 350px;
-            animation: slideIn 0.3s ease;
+            animation: slideIn 0.3s ease-out forwards;
         }
         
         .notification.fade-out {
@@ -746,6 +836,75 @@
             transform: translateY(-2px);
             box-shadow: 0 4px 12px rgba(52, 168, 83, 0.3);
         }
+
+        /* Map Markers and Path Animations */
+        .pulse-marker {
+            animation: pulse-animation 2s infinite;
+        }
+        
+        @keyframes pulse-animation {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+        
+        .bounce-marker {
+            animation: bounce-animation 1s infinite;
+        }
+        
+        @keyframes bounce-animation {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        .path-line {
+            stroke-dasharray: 10, 10;
+            animation: dash 30s linear infinite;
+        }
+        
+        @keyframes dash {
+            to { stroke-dashoffset: -1000; }
+        }
+        
+        .distance-marker {
+            background-color: rgba(66, 133, 244, 0.8);
+            color: white;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            white-space: nowrap;
+        }
+        
+        .directions-list li {
+            padding: 10px 0;
+            border-bottom: 1px solid #dadce0;
+            position: relative;
+        }
+        
+        .directions-list li:last-child {
+            border-bottom: none;
+        }
+        
+        .directions-list li:before {
+            content: '';
+            position: absolute;
+            left: -20px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 8px;
+            height: 8px;
+            background-color: #4285f4;
+            border-radius: 50%;
+        }
+        
+        .step-distance {
+            display: block;
+            color: #5f6368;
+            font-size: 0.85em;
+            margin-top: 4px;
+        }
     </style>
 </head>
 <body>
@@ -775,44 +934,25 @@
     </section>
 
     <!-- Map Section -->
-    <section id="map-section" class="map-section">
-        <div class="section-header" data-aos="fade-up">
-            <h2>Campus Map</h2>
-            <p>Find your way around campus with our interactive map</p>
-        </div>
-        
-        <div class="map-container" data-aos="fade-up">
-            <div class="map-controls">
-                <button id="explore-btn" class="btn primary-btn">Explore Now (Show TSP Route)</button>
-                <button id="locate-btn" class="btn secondary-btn">Locate Amrita Vishwa Vidyapeetham</button>
+    <section id="map-section" style="padding: 60px 0; background-color: #f8f9fa;">
+        <div class="container" style="max-width: 1200px; margin: 0 auto; padding: 0 20px;">
+            <div class="section-header" style="text-align: center; margin-bottom: 40px;">
+                <h2 style="font-size: 2.5rem; color: #202124; margin-bottom: 15px;">Campus Map</h2>
+                <p style="color: #5f6368; font-size: 1.1rem; max-width: 700px; margin: 0 auto;">Explore our campus with an interactive map. Find buildings, facilities, and navigate easily.</p>
             </div>
             
-            <div id="map" style="display: none; height: 500px; width: 100%; margin-top: 20px; border-radius: 10px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);"></div>
+            <div class="map-container" style="position: relative; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); margin-bottom: 30px;">
+                <div id="map" style="height: 500px; width: 100%;"></div>
+            </div>
             
-            <div id="route-form" class="route-form" data-aos="fade-up">
-                <h3>Find Route Between Two Locations</h3>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="start-location">Start Location</label>
-                        <select id="start-location" required>
-                            <option value="">Select start location</option>
-                        </select>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="end-location">Destination</label>
-                        <select id="end-location" required>
-                            <option value="">Select destination</option>
-                        </select>
-                    </div>
-                    
-                    <div class="form-group">
-                        <button id="findRouteBtn" class="btn primary-btn">Find Route</button>
-                    </div>
+            <div class="map-info" style="display: flex; flex-wrap: wrap; gap: 20px;">
+                <div id="route-info" style="flex: 1; min-width: 300px; background-color: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); display: none;">
+                    <!-- Route information will be displayed here -->
                 </div>
                 
-                <div id="route-info" class="route-info" style="display: none;"></div>
-                <div id="route-directions" class="route-directions" style="display: none;"></div>
+                <div id="route-directions" style="flex: 2; min-width: 300px; background-color: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); display: none;">
+                    <!-- Directions will be displayed here -->
+                </div>
             </div>
         </div>
     </section>
@@ -871,18 +1011,27 @@
                         
                         <div class="form-group" style="margin-bottom: 20px;">
                             <label for="event-date" style="display: block; margin-bottom: 8px; font-weight: 500; color: #202124;">Date</label>
-                            <input type="date" id="event-date" required style="width: 100%; padding: 12px 15px; border: 1px solid #dadce0; border-radius: 8px; font-family: 'Poppins', sans-serif; font-size: 0.9rem;">
+                            <div class="date-time-container">
+                                <input type="date" id="event-date" required style="width: 100%; padding: 12px 15px; border: 1px solid #dadce0; border-radius: 8px; font-family: 'Poppins', sans-serif; font-size: 0.9rem;">
+                                <i class="fas fa-calendar-alt"></i>
+                            </div>
                         </div>
                         
                         <div class="form-row" style="display: flex; gap: 15px; margin-bottom: 20px;">
                             <div class="form-group" style="flex: 1;">
                                 <label for="event-start-time" style="display: block; margin-bottom: 8px; font-weight: 500; color: #202124;">Start Time</label>
-                                <input type="time" id="event-start-time" required placeholder="Select start time" style="width: 100%; padding: 12px 15px; border: 1px solid #dadce0; border-radius: 8px; font-family: 'Poppins', sans-serif; font-size: 0.9rem;">
+                                <div class="date-time-container">
+                                    <input type="time" id="event-start-time" required placeholder="Select start time" style="width: 100%; padding: 12px 15px; border: 1px solid #dadce0; border-radius: 8px; font-family: 'Poppins', sans-serif; font-size: 0.9rem;">
+                                    <i class="fas fa-clock"></i>
+                                </div>
                             </div>
                             
                             <div class="form-group" style="flex: 1;">
                                 <label for="event-end-time" style="display: block; margin-bottom: 8px; font-weight: 500; color: #202124;">End Time</label>
-                                <input type="time" id="event-end-time" required placeholder="Select end time" style="width: 100%; padding: 12px 15px; border: 1px solid #dadce0; border-radius: 8px; font-family: 'Poppins', sans-serif; font-size: 0.9rem;">
+                                <div class="date-time-container">
+                                    <input type="time" id="event-end-time" required placeholder="Select end time" style="width: 100%; padding: 12px 15px; border: 1px solid #dadce0; border-radius: 8px; font-family: 'Poppins', sans-serif; font-size: 0.9rem;">
+                                    <i class="fas fa-clock"></i>
+                                </div>
                             </div>
                         </div>
                         
@@ -930,6 +1079,9 @@
 
     <!-- Leaflet JS -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
+    <!-- Leaflet Polyline Decorator -->
+    <script src="https://unpkg.com/leaflet-polylinedecorator/dist/leaflet.polylineDecorator.js"></script>
     
     <!-- AOS Animation Library -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
@@ -982,15 +1134,35 @@
             // Add click event listeners
             upcomingTab.addEventListener('click', function() {
                 switchTab(upcomingTab, upcomingPane);
+                loadEvents('created_at'); // Load events sorted by creation time
             });
             
             expiringTab.addEventListener('click', function() {
                 switchTab(expiringTab, expiringPane);
+                loadEvents('expiry'); // Load events sorted by expiry
             });
             
             addTab.addEventListener('click', function() {
                 switchTab(addTab, addPane);
             });
+
+            // Helper function to calculate distance between two coordinates (Haversine formula)
+            function calculateDistance(lat1, lon1, lat2, lon2) {
+                const R = 6371; // Radius of the earth in km
+                const dLat = deg2rad(lat2 - lat1);
+                const dLon = deg2rad(lon2 - lon1);
+                const a = 
+                    Math.sin(dLat/2) * Math.sin(dLat/2) +
+                    Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) * 
+                    Math.sin(dLon/2) * Math.sin(dLon/2); 
+                const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
+                const distance = R * c; // Distance in km
+                return distance;
+            }
+            
+            function deg2rad(deg) {
+                return deg * (Math.PI/180);
+            }
 
             // Event handling
             let events = [];
@@ -1000,9 +1172,135 @@
             const noUpcomingEventsMsg = document.getElementById('no-upcoming-events');
             const noExpiringEventsMsg = document.getElementById('no-expiring-events');
 
+            // Enhanced date and time inputs with better styling and animations
+            const dateInput = document.getElementById('event-date');
+            const startTimeInput = document.getElementById('event-start-time');
+            const endTimeInput = document.getElementById('event-end-time');
+            const allInputs = document.querySelectorAll('input, select, textarea');
+            
+            // Apply focus/blur effects for all form inputs
+            allInputs.forEach(input => {
+                const formGroup = input.closest('.form-group');
+                
+                input.addEventListener('focus', function() {
+                    if (formGroup) {
+                        formGroup.classList.add('focused');
+                    }
+                    this.style.borderColor = '#4285f4';
+                    this.style.boxShadow = '0 0 0 2px rgba(66, 133, 244, 0.2)';
+                    this.style.backgroundColor = 'white';
+                });
+                
+                input.addEventListener('blur', function() {
+                    if (formGroup) {
+                        formGroup.classList.remove('focused');
+                    }
+                    this.style.borderColor = '#dadce0';
+                    this.style.boxShadow = 'none';
+                    this.style.backgroundColor = '#f8f9fa';
+                });
+            });
+            
+            // Set min date for date picker to today
+            const today = new Date();
+            const formattedDate = today.toISOString().split('T')[0];
+            dateInput.setAttribute('min', formattedDate);
+            
+            // Initialize flatpickr for better date/time picking experience
+            if (typeof flatpickr !== 'undefined') {
+                flatpickr(dateInput, {
+                    dateFormat: "Y-m-d",
+                    minDate: "today",
+                    animate: true,
+                    disableMobile: true,
+                    onChange: function(selectedDates, dateStr, instance) {
+                        // Add animation when date is selected
+                        const dateContainer = dateInput.closest('.date-time-container');
+                        if (dateContainer) {
+                            dateContainer.classList.add('date-selected');
+                            setTimeout(() => {
+                                dateContainer.classList.remove('date-selected');
+                            }, 500);
+                        }
+                    }
+                });
+                
+                flatpickr(startTimeInput, {
+                    enableTime: true,
+                    noCalendar: true,
+                    dateFormat: "H:i",
+                    time_24hr: true,
+                    disableMobile: true,
+                    minuteIncrement: 15
+                });
+                
+                flatpickr(endTimeInput, {
+                    enableTime: true,
+                    noCalendar: true,
+                    dateFormat: "H:i",
+                    time_24hr: true,
+                    disableMobile: true,
+                    minuteIncrement: 15
+                });
+            }
+            
+            // Add animation for date/time containers
+            const dateTimeContainers = document.querySelectorAll('.date-time-container');
+            dateTimeContainers.forEach(container => {
+                const input = container.querySelector('input');
+                const icon = container.querySelector('i');
+                
+                if (input && icon) {
+                    input.addEventListener('focus', () => {
+                        icon.style.color = '#4285f4';
+                        icon.style.transform = 'translateY(-50%) scale(1.2)';
+                        container.style.boxShadow = '0 0 0 2px rgba(66, 133, 244, 0.2)';
+                    });
+                    
+                    input.addEventListener('blur', () => {
+                        icon.style.color = '';
+                        icon.style.transform = 'translateY(-50%)';
+                        container.style.boxShadow = '';
+                    });
+                }
+            });
+
+            // Function to load events from the server
+            function loadEvents(sortBy = 'created_at', filter = null) {
+                // Show loading state
+                upcomingEventsList.innerHTML = '<p style="text-align: center; padding: 20px;">Loading events...</p>';
+                expiringEventsList.innerHTML = '<p style="text-align: center; padding: 20px;">Loading events...</p>';
+                
+                // Build query parameters
+                let url = '/api/events';
+                const params = new URLSearchParams();
+                if (sortBy) params.append('sort_by', sortBy);
+                if (filter) params.append('filter', filter);
+                if (params.toString()) url += '?' + params.toString();
+                
+                // Fetch events from server
+                fetch(url)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Failed to load events');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        events = data;
+                        displayEvents(sortBy);
+                    })
+                    .catch(error => {
+                        console.error('Error loading events:', error);
+                        showNotification('Failed to load events. Please try again.', 'error');
+                        upcomingEventsList.innerHTML = '<p style="text-align: center; padding: 20px; color: #ea4335;">Error loading events. Please refresh the page.</p>';
+                        expiringEventsList.innerHTML = '<p style="text-align: center; padding: 20px; color: #ea4335;">Error loading events. Please refresh the page.</p>';
+                    });
+            }
+
             // Function to create an event card
             function createEventCard(event, isExpiring = false) {
-                const eventDate = new Date(`${event.date}T${event.startTime}`);
+                const eventDate = new Date(`${event.date}T${event.time}`);
                 const now = new Date();
                 const timeLeft = eventDate - now;
                 
@@ -1014,15 +1312,18 @@
                     day: 'numeric'
                 });
                 
-                const formattedStartTime = new Date(`${event.date}T${event.startTime}`).toLocaleTimeString('en-US', {
+                const formattedStartTime = new Date(`${event.date}T${event.time}`).toLocaleTimeString('en-US', {
                     hour: '2-digit',
                     minute: '2-digit'
                 });
                 
-                const formattedEndTime = new Date(`${event.date}T${event.endTime}`).toLocaleTimeString('en-US', {
-                    hour: '2-digit',
-                    minute: '2-digit'
-                });
+                let formattedEndTime = 'Not specified';
+                if (event.end_time) {
+                    formattedEndTime = new Date(`${event.date}T${event.end_time}`).toLocaleTimeString('en-US', {
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    });
+                }
                 
                 // Calculate time remaining
                 let timeRemaining = '';
@@ -1052,6 +1353,7 @@
                 eventCard.style.marginBottom = '20px';
                 eventCard.style.overflow = 'hidden';
                 eventCard.style.transition = 'all 0.3s ease';
+                eventCard.style.animation = 'fadeIn 0.5s ease-out';
                 
                 // Create event card content
                 const headerColor = isExpiring ? '#ea4335' : '#4285f4';
@@ -1061,18 +1363,33 @@
                     <div class="event-header" style="padding: 15px 20px; background-color: ${headerColor}; color: white; display: flex; justify-content: space-between; align-items: center;">
                         <h3 style="margin: 0; font-size: 1.2rem;">${event.name}</h3>
                         <div class="event-actions">
-                            <button class="delete-btn" data-event-id="${event.id}" style="background: none; border: none; color: white; cursor: pointer; font-size: 1rem; padding: 8px; border-radius: 50%; background-color: rgba(255, 255, 255, 0.1);"><i class="fas fa-trash-alt"></i></button>
+                            <button class="delete-btn" data-event-id="${event.id}" style="background: none; border: none; color: white; cursor: pointer; font-size: 1rem; padding: 8px; border-radius: 50%; background-color: rgba(255, 255, 255, 0.1); transition: all 0.2s ease;">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
                         </div>
                     </div>
                     <div class="event-details" style="padding: 15px 20px; border-bottom: 1px solid #dadce0; background-color: rgba(66, 133, 244, 0.05);">
-                        <p style="margin: 8px 0; color: #5f6368; font-size: 0.9rem; display: flex; align-items: center;"><i class="fas fa-map-marker-alt" style="margin-right: 10px; color: ${iconColor}; width: 20px; text-align: center;"></i> ${event.venue}</p>
-                        <p style="margin: 8px 0; color: #5f6368; font-size: 0.9rem; display: flex; align-items: center;"><i class="fas fa-calendar-alt" style="margin-right: 10px; color: ${iconColor}; width: 20px; text-align: center;"></i> ${formattedDate}</p>
-                        <p style="margin: 8px 0; color: #5f6368; font-size: 0.9rem; display: flex; align-items: center;"><i class="fas fa-clock" style="margin-right: 10px; color: ${iconColor}; width: 20px; text-align: center;"></i> ${formattedStartTime} - ${formattedEndTime}</p>
-                        <p style="margin: 8px 0; color: #5f6368; font-size: 0.9rem; display: flex; align-items: center;"><i class="fas fa-hourglass-half" style="margin-right: 10px; color: ${iconColor}; width: 20px; text-align: center;"></i> ${timeRemaining}</p>
+                        <p style="margin: 8px 0; color: #5f6368; font-size: 0.9rem; display: flex; align-items: center;">
+                            <i class="fas fa-map-marker-alt" style="margin-right: 10px; color: ${iconColor}; width: 20px; text-align: center;"></i> 
+                            ${event.venue_name}
+                        </p>
+                        <p style="margin: 8px 0; color: #5f6368; font-size: 0.9rem; display: flex; align-items: center;">
+                            <i class="fas fa-calendar-alt" style="margin-right: 10px; color: ${iconColor}; width: 20px; text-align: center;"></i> 
+                            ${formattedDate}
+                        </p>
+                        <p style="margin: 8px 0; color: #5f6368; font-size: 0.9rem; display: flex; align-items: center;">
+                            <i class="fas fa-clock" style="margin-right: 10px; color: ${iconColor}; width: 20px; text-align: center;"></i> 
+                            <span style="background-color: rgba(66, 133, 244, 0.1); padding: 3px 8px; border-radius: 4px; margin-right: 5px;">${formattedStartTime}</span> - 
+                            <span style="background-color: rgba(66, 133, 244, 0.1); padding: 3px 8px; border-radius: 4px; margin-left: 5px;">${formattedEndTime}</span>
+                        </p>
+                        <p style="margin: 8px 0; color: #5f6368; font-size: 0.9rem; display: flex; align-items: center;">
+                            <i class="fas fa-hourglass-half" style="margin-right: 10px; color: ${iconColor}; width: 20px; text-align: center;"></i> 
+                            <span style="background-color: rgba(251, 188, 5, 0.1); padding: 3px 8px; border-radius: 4px;">${timeRemaining}</span>
+                        </p>
                     </div>
                     <div class="event-body" style="padding: 15px 20px;">
                         <p style="margin-bottom: 15px; font-size: 0.95rem; line-height: 1.6;">${event.description || 'No description available.'}</p>
-                        <button class="btn primary-btn navigate-btn" data-venue-name="${event.venue}" style="padding: 10px 20px; font-size: 0.9rem; display: flex; align-items: center; justify-content: center; gap: 8px; background-color: ${headerColor}; color: white; border-radius: 50px; border: none; cursor: pointer;">
+                        <button class="btn primary-btn navigate-btn" data-venue-name="${event.venue_name}" style="padding: 10px 20px; font-size: 0.9rem; display: flex; align-items: center; justify-content: center; gap: 8px; background-color: ${headerColor}; color: white; border-radius: 50px; border: none; cursor: pointer; transition: all 0.3s ease;">
                             <i class="fas fa-directions"></i> Navigate to Venue
                         </button>
                     </div>
@@ -1090,49 +1407,61 @@
                     navigateToVenue(venueName);
                 });
                 
+                // Add hover effect to delete button
+                const deleteBtn = eventCard.querySelector('.delete-btn');
+                deleteBtn.addEventListener('mouseover', function() {
+                    this.style.backgroundColor = 'rgba(255, 255, 255, 0.2)';
+                    this.style.transform = 'scale(1.1)';
+                });
+                deleteBtn.addEventListener('mouseout', function() {
+                    this.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
+                    this.style.transform = 'scale(1)';
+                });
+                
                 return eventCard;
             }
             
             // Function to display events
-            function displayEvents() {
+            function displayEvents(sortBy = 'created_at') {
                 // Clear existing events
                 upcomingEventsList.innerHTML = '';
                 expiringEventsList.innerHTML = '';
+                
+                if (events.length === 0) {
+                    upcomingEventsList.innerHTML = '<p id="no-upcoming-events" class="no-events" style="text-align: center; padding: 40px 20px; color: #5f6368; font-size: 1.1rem; background-color: white; border-radius: 10px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);">No upcoming events found. Add an event to get started!</p>';
+                    expiringEventsList.innerHTML = '<p id="no-expiring-events" class="no-events" style="text-align: center; padding: 40px 20px; color: #5f6368; font-size: 1.1rem; background-color: white; border-radius: 10px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);">No events expiring soon.</p>';
+                    return;
+                }
                 
                 const now = new Date();
                 
                 // Filter for future events
                 const upcomingEvents = events.filter(event => {
-                    const eventDate = new Date(`${event.date}T${event.startTime}`);
+                    const eventDate = new Date(`${event.date}T${event.time}`);
                     return eventDate > now;
                 });
                 
-                // Sort upcoming events by creation time (newest first)
-                const sortedByCreation = [...upcomingEvents].sort((a, b) => {
-                    return b.createdAt - a.createdAt;
-                });
-                
-                // Sort expiring events by date/time (soonest first)
-                const sortedByExpiry = [...upcomingEvents].sort((a, b) => {
-                    const aDate = new Date(`${a.date}T${a.startTime}`);
-                    const bDate = new Date(`${b.date}T${b.startTime}`);
-                    return aDate - bDate;
-                });
-                
                 // Display upcoming events
-                if (sortedByCreation.length === 0) {
+                if (upcomingEvents.length === 0) {
                     upcomingEventsList.innerHTML = '<p id="no-upcoming-events" class="no-events" style="text-align: center; padding: 40px 20px; color: #5f6368; font-size: 1.1rem; background-color: white; border-radius: 10px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);">No upcoming events found. Add an event to get started!</p>';
                 } else {
-                    sortedByCreation.forEach(event => {
+                    upcomingEvents.forEach(event => {
                         const eventCard = createEventCard(event, false);
                         upcomingEventsList.appendChild(eventCard);
                     });
                 }
                 
-                // Display expiring events
-                if (sortedByExpiry.length === 0) {
+                // Display expiring events (sorted by date)
+                if (upcomingEvents.length === 0) {
                     expiringEventsList.innerHTML = '<p id="no-expiring-events" class="no-events" style="text-align: center; padding: 40px 20px; color: #5f6368; font-size: 1.1rem; background-color: white; border-radius: 10px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);">No events expiring soon.</p>';
                 } else {
+                    // Sort by date (soonest first)
+                    const sortedByExpiry = [...upcomingEvents].sort((a, b) => {
+                        const aDate = new Date(`${a.date}T${a.time}`);
+                        const bDate = new Date(`${b.date}T${b.time}`);
+                        return aDate - bDate;
+                    });
+                    
                     sortedByExpiry.forEach(event => {
                         const eventCard = createEventCard(event, true);
                         expiringEventsList.appendChild(eventCard);
@@ -1153,57 +1482,457 @@
                 const description = document.getElementById('event-description').value;
                 
                 // Validate form
-                if (!name || !venue || !date || !startTime || !endTime) {
+                if (!name || !venue || !date || !startTime) {
                     showNotification('Please fill in all required fields.', 'error');
                     return;
                 }
                 
                 // Validate that end time is after start time
-                if (endTime <= startTime) {
+                if (endTime && endTime <= startTime) {
                     showNotification('End time must be after start time.', 'error');
                     return;
                 }
                 
                 // Create new event object
                 const newEvent = {
-                    id: Date.now().toString(), // Use timestamp as unique ID
-                    name,
-                    venue,
-                    date,
-                    startTime,
-                    endTime,
-                    description,
-                    createdAt: new Date()
+                    name: name,
+                    venue_name: venue,
+                    date: date,
+                    time: startTime,
+                    end_time: endTime,
+                    description: description
                 };
                 
-                // Add to events array
-                events.push(newEvent);
+                // Show loading state
+                const submitBtn = eventForm.querySelector('button[type="submit"]');
+                const originalBtnText = submitBtn.innerHTML;
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Adding...';
+                submitBtn.disabled = true;
                 
-                // Update display
-                displayEvents();
-                
-                // Reset form
-                eventForm.reset();
-                
-                // Show success notification
-                showNotification('Event added successfully!', 'success');
-                
-                // Switch to upcoming events tab
-                switchTab(upcomingTab, upcomingPane);
+                // Send to server
+                fetch('/api/events', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(newEvent)
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Failed to add event');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    // Reset form
+                    eventForm.reset();
+                    
+                    // Show success notification
+                    showNotification('Event added successfully!', 'success');
+                    
+                    // Reload events
+                    loadEvents('created_at');
+                    
+                    // Switch to upcoming events tab
+                    switchTab(upcomingTab, upcomingPane);
+                })
+                .catch(error => {
+                    console.error('Error adding event:', error);
+                    showNotification('Failed to add event. Please try again.', 'error');
+                })
+                .finally(() => {
+                    // Reset button
+                    submitBtn.innerHTML = originalBtnText;
+                    submitBtn.disabled = false;
+                });
             }
             
             // Function to delete an event
             function deleteEvent(eventId) {
-                // Remove event from array
-                events = events.filter(event => event.id !== eventId);
+                if (!confirm('Are you sure you want to delete this event?')) {
+                    return;
+                }
                 
-                // Update display
-                displayEvents();
+                // Show loading state
+                const eventCard = document.querySelector(`.event-card[data-event-id="${eventId}"]`);
+                if (eventCard) {
+                    eventCard.style.opacity = '0.5';
+                    eventCard.style.pointerEvents = 'none';
+                }
                 
-                // Show success notification
-                showNotification('Event deleted successfully!', 'success');
+                // Send delete request to server
+                fetch(`/api/events/${eventId}`, {
+                    method: 'DELETE'
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Failed to delete event');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    // Show success notification
+                    showNotification('Event deleted successfully!', 'success');
+                    
+                    // Reload events
+                    loadEvents('created_at');
+                })
+                .catch(error => {
+                    console.error('Error deleting event:', error);
+                    showNotification('Failed to delete event. Please try again.', 'error');
+                    
+                    // Reset event card
+                    if (eventCard) {
+                        eventCard.style.opacity = '1';
+                        eventCard.style.pointerEvents = 'auto';
+                    }
+                });
             }
             
+            // Function to navigate to venue
+            function navigateToVenue(venueName) {
+                // Show loading notification
+                showNotification(`Finding route to ${venueName}...`, 'info');
+                
+                // Scroll to map section
+                document.getElementById('map-section').scrollIntoView({ behavior: 'smooth' });
+                
+                // Make sure map is visible
+                const mapElement = document.getElementById('map');
+                if (mapElement.style.display === 'none') {
+                    mapElement.style.display = 'block';
+                }
+                
+                // Get venue location from our locations data
+                fetch('/api/locations')
+                    .then(response => response.json())
+                    .then(locations => {
+                        // Find the venue by name
+                        const venue = locations.find(loc => loc.name === venueName);
+                        
+                        if (!venue) {
+                            // Try to find a partial match if exact match not found
+                            const partialMatch = locations.find(loc => 
+                                loc.name.toLowerCase().includes(venueName.toLowerCase()) || 
+                                venueName.toLowerCase().includes(loc.name.toLowerCase())
+                            );
+                            
+                            if (partialMatch) {
+                                venue = partialMatch;
+                            } else {
+                                throw new Error(`Venue "${venueName}" not found`);
+                            }
+                        }
+                        
+                        // Get user's current location
+                        if (navigator.geolocation) {
+                            navigator.geolocation.getCurrentPosition(
+                                // Success callback
+                                function(position) {
+                                    const userLat = position.coords.latitude;
+                                    const userLng = position.coords.longitude;
+                                    
+                                    // Create or get the map instance
+                                    let map;
+                                    if (window.campusMap) {
+                                        // Use existing map if available
+                                        map = window.campusMap;
+                                        map.eachLayer(function(layer) {
+                                            // Remove all layers except the base tile layer
+                                            if (layer._url === undefined) {
+                                                map.removeLayer(layer);
+                                            }
+                                        });
+                                    } else {
+                                        // Initialize map if it doesn't exist
+                                        map = L.map('map').setView([venue.latitude, venue.longitude], 15);
+                                        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                                            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                                        }).addTo(map);
+                                        window.campusMap = map;
+                                    }
+                                    
+                                    // Add user marker with animation
+                                    const userIcon = L.divIcon({
+                                        html: '<div class="pulse-marker"><i class="fas fa-user-circle" style="font-size: 24px; color: #34a853;"></i></div>',
+                                        className: 'user-marker',
+                                        iconSize: [24, 24],
+                                        iconAnchor: [12, 12]
+                                    });
+                                    
+                                    const userMarker = L.marker([userLat, userLng], {
+                                        icon: userIcon,
+                                        title: 'Your Location'
+                                    }).addTo(map);
+                                    
+                                    userMarker.bindPopup('<b>Your Location</b>').openPopup();
+                                    
+                                    // Add venue marker with animation
+                                    const venueIcon = L.divIcon({
+                                        html: '<div class="bounce-marker"><i class="fas fa-map-marker-alt" style="font-size: 28px; color: #ea4335;"></i></div>',
+                                        className: 'venue-marker',
+                                        iconSize: [28, 28],
+                                        iconAnchor: [14, 28]
+                                    });
+                                    
+                                    const venueMarker = L.marker([venue.latitude, venue.longitude], {
+                                        icon: venueIcon,
+                                        title: venue.name
+                                    }).addTo(map);
+                                    
+                                    venueMarker.bindPopup(`<b>${venue.name}</b><br>${venue.description || ''}`);
+                                    
+                                    // Try to find a path using our API
+                                    fetch(`/api/shortest_path?start_id=1&end_id=${venue.id}`)
+                                        .then(response => response.json())
+                                        .then(pathData => {
+                                            // If we have a path from the API, use it
+                                            if (pathData && pathData.path && pathData.path.length > 1) {
+                                                const pathCoordinates = pathData.path.map(loc => [loc.latitude, loc.longitude]);
+                                                
+                                                // Add user location to the beginning
+                                                pathCoordinates.unshift([userLat, userLng]);
+                                                
+                                                drawPath(map, pathCoordinates);
+                                            } else {
+                                                // Fallback to direct path
+                                                const pathCoordinates = [
+                                                    [userLat, userLng],
+                                                    [venue.latitude, venue.longitude]
+                                                ];
+                                                
+                                                drawPath(map, pathCoordinates);
+                                            }
+                                        })
+                                        .catch(error => {
+                                            console.error('Error getting path from API:', error);
+                                            
+                                            // Fallback to direct path
+                                            const pathCoordinates = [
+                                                [userLat, userLng],
+                                                [venue.latitude, venue.longitude]
+                                            ];
+                                            
+                                            drawPath(map, pathCoordinates);
+                                        });
+                                    
+                                    // Function to draw path with animation
+                                    function drawPath(map, coordinates) {
+                                        // Create the path with animated dash
+                                        const path = L.polyline(coordinates, {
+                                            color: '#4285f4',
+                                            weight: 5,
+                                            opacity: 0.8,
+                                            lineCap: 'round',
+                                            lineJoin: 'round',
+                                            dashArray: '10, 10',
+                                            className: 'path-line'
+                                        }).addTo(map);
+                                        
+                                        // Add animated arrow along the path
+                                        const arrowHead = L.polylineDecorator(path, {
+                                            patterns: [
+                                                {
+                                                    offset: '60%', 
+                                                    repeat: 100,
+                                                    symbol: L.Symbol.arrowHead({
+                                                        pixelSize: 15,
+                                                        polygon: false,
+                                                        pathOptions: {
+                                                            color: '#4285f4',
+                                                            weight: 5,
+                                                            fillOpacity: 1
+                                                        }
+                                                    })
+                                                }
+                                            ]
+                                        }).addTo(map);
+                                        
+                                        // Add distance markers
+                                        if (coordinates.length > 2) {
+                                            // For complex paths, add distance markers at each waypoint
+                                            let totalDistance = 0;
+                                            
+                                            for (let i = 1; i < coordinates.length; i++) {
+                                                const segmentDistance = calculateDistance(
+                                                    coordinates[i-1][0], coordinates[i-1][1],
+                                                    coordinates[i][0], coordinates[i][1]
+                                                );
+                                                
+                                                totalDistance += segmentDistance;
+                                                
+                                                // Add marker at waypoints
+                                                if (i < coordinates.length - 1) {
+                                                    L.marker(coordinates[i], {
+                                                        icon: L.divIcon({
+                                                            html: `<div class="distance-marker">${segmentDistance.toFixed(2)} km</div>`,
+                                                            className: 'distance-marker-container',
+                                                            iconSize: [60, 20]
+                                                        })
+                                                    }).addTo(map);
+                                                }
+                                            }
+                                        } else {
+                                            // For direct path, calculate the total distance
+                                            const distance = calculateDistance(
+                                                coordinates[0][0], coordinates[0][1],
+                                                coordinates[1][0], coordinates[1][1]
+                                            );
+                                            
+                                            // Add distance marker in the middle of the path
+                                            const midPoint = [
+                                                (coordinates[0][0] + coordinates[1][0]) / 2,
+                                                (coordinates[0][1] + coordinates[1][1]) / 2
+                                            ];
+                                            
+                                            L.marker(midPoint, {
+                                                icon: L.divIcon({
+                                                    html: `<div class="distance-marker">${distance.toFixed(2)} km</div>`,
+                                                    className: 'distance-marker-container',
+                                                    iconSize: [60, 20]
+                                                })
+                                            }).addTo(map);
+                                        }
+                                        
+                                        // Fit map to show the entire path
+                                        map.fitBounds(path.getBounds(), {
+                                            padding: [50, 50]
+                                        });
+                                        
+                                        // Calculate total distance
+                                        let totalDistance = 0;
+                                        for (let i = 1; i < coordinates.length; i++) {
+                                            totalDistance += calculateDistance(
+                                                coordinates[i-1][0], coordinates[i-1][1],
+                                                coordinates[i][0], coordinates[i][1]
+                                            );
+                                        }
+                                        
+                                        // Show route info
+                                        const routeInfo = document.getElementById('route-info');
+                                        if (routeInfo) {
+                                            routeInfo.style.display = 'block';
+                                            routeInfo.innerHTML = `
+                                                <h4 style="margin-top: 0; color: #4285f4;">Route Information</h4>
+                                                <p><strong>From:</strong> Your Location</p>
+                                                <p><strong>To:</strong> ${venue.name}</p>
+                                                <p><strong>Distance:</strong> ${totalDistance.toFixed(2)} km</p>
+                                                <p><strong>Estimated Time:</strong> ${Math.ceil(totalDistance * 15)} minutes (walking)</p>
+                                                <div class="route-actions" style="margin-top: 15px; display: flex; gap: 10px;">
+                                                    <button onclick="window.open('https://www.google.com/maps/dir/?api=1&destination=${venue.latitude},${venue.longitude}', '_blank')" class="btn primary-btn" style="flex: 1; padding: 8px 12px; font-size: 0.9rem;">
+                                                        <i class="fab fa-google"></i> Open in Google Maps
+                                                    </button>
+                                                </div>
+                                            `;
+                                        }
+                                        
+                                        // Add directions list
+                                        const routeDirections = document.getElementById('route-directions');
+                                        if (routeDirections) {
+                                            routeDirections.style.display = 'block';
+                                            
+                                            let directionsHTML = '<h4 style="margin-top: 0; color: #4285f4;">Directions</h4>';
+                                            directionsHTML += '<ol class="directions-list">';
+                                            
+                                            // Start with user location
+                                            directionsHTML += `<li>Start from <strong>Your Location</strong></li>`;
+                                            
+                                            // Add waypoints if we have a complex path
+                                            if (coordinates.length > 2) {
+                                                for (let i = 1; i < coordinates.length - 1; i++) {
+                                                    // Find the location name if available
+                                                    const waypoint = locations.find(loc => 
+                                                        loc.latitude === coordinates[i][0] && 
+                                                        loc.longitude === coordinates[i][1]
+                                                    );
+                                                    
+                                                    const waypointName = waypoint ? waypoint.name : `Waypoint ${i}`;
+                                                    const distance = calculateDistance(
+                                                        coordinates[i-1][0], coordinates[i-1][1],
+                                                        coordinates[i][0], coordinates[i][1]
+                                                    );
+                                                    
+                                                    directionsHTML += `
+                                                        <li>
+                                                            Continue to <strong>${waypointName}</strong>
+                                                            <span class="step-distance">${distance.toFixed(2)} km</span>
+                                                        </li>
+                                                    `;
+                                                }
+                                            }
+                                            
+                                            // Add final destination
+                                            const finalDistance = calculateDistance(
+                                                coordinates[coordinates.length-2][0], coordinates[coordinates.length-2][1],
+                                                coordinates[coordinates.length-1][0], coordinates[coordinates.length-1][1]
+                                            );
+                                            
+                                            directionsHTML += `
+                                                <li>
+                                                    Arrive at <strong>${venue.name}</strong>
+                                                    <span class="step-distance">${finalDistance.toFixed(2)} km</span>
+                                                </li>
+                                            `;
+                                            
+                                            directionsHTML += '</ol>';
+                                            routeDirections.innerHTML = directionsHTML;
+                                        }
+                                    }
+                                    
+                                    // Show success notification
+                                    showNotification(`Route to ${venue.name} displayed on the map`, 'success');
+                                },
+                                // Error callback
+                                function(error) {
+                                    console.error('Error getting user location:', error);
+                                    showNotification('Could not access your location. Please enable location services.', 'error');
+                                    
+                                    // Still show the venue on the map
+                                    let map;
+                                    if (window.campusMap) {
+                                        map = window.campusMap;
+                                    } else {
+                                        map = L.map('map').setView([venue.latitude, venue.longitude], 16);
+                                        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                                            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                                        }).addTo(map);
+                                        window.campusMap = map;
+                                    }
+                                    
+                                    const venueIcon = L.divIcon({
+                                        html: '<div class="bounce-marker"><i class="fas fa-map-marker-alt" style="font-size: 28px; color: #ea4335;"></i></div>',
+                                        className: 'venue-marker',
+                                        iconSize: [28, 28],
+                                        iconAnchor: [14, 28]
+                                    });
+                                    
+                                    const venueMarker = L.marker([venue.latitude, venue.longitude], {
+                                        icon: venueIcon,
+                                        title: venue.name
+                                    }).addTo(map);
+                                    
+                                    venueMarker.bindPopup(`<b>${venue.name}</b><br>${venue.description || ''}`).openPopup();
+                                },
+                                // Options
+                                {
+                                    enableHighAccuracy: true,
+                                    timeout: 5000,
+                                    maximumAge: 0
+                                }
+                            );
+                        } else {
+                            showNotification('Geolocation is not supported by your browser', 'error');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error finding venue:', error);
+                        showNotification('Could not find the venue. Please try again.', 'error');
+                    });
+            }
+            
+            // Load events on page load
+            loadEvents('created_at');
+
             // Function to show notification
             function showNotification(message, type = 'info') {
                 // Create notification element
@@ -1218,6 +1947,7 @@
                 notification.style.zIndex = '9999';
                 notification.style.overflow = 'hidden';
                 notification.style.maxWidth = '350px';
+                notification.style.animation = 'slideIn 0.3s ease-out forwards';
                 
                 // Set icon based on notification type
                 let icon = 'info-circle';
@@ -1243,13 +1973,23 @@
                 
                 // Add event listener to close button
                 notification.querySelector('button').addEventListener('click', () => {
-                    notification.remove();
+                    notification.style.animation = 'fadeOut 0.3s ease-out forwards';
+                    setTimeout(() => {
+                        if (document.body.contains(notification)) {
+                            notification.remove();
+                        }
+                    }, 300);
                 });
                 
                 // Auto remove after 5 seconds
                 setTimeout(() => {
                     if (document.body.contains(notification)) {
-                        notification.remove();
+                        notification.style.animation = 'fadeOut 0.3s ease-out forwards';
+                        setTimeout(() => {
+                            if (document.body.contains(notification)) {
+                                notification.remove();
+                            }
+                        }, 300);
                     }
                 }, 5000);
             }
@@ -1257,8 +1997,52 @@
             // Add event listener to form submission
             eventForm.addEventListener('submit', addEvent);
             
-            // Initialize with empty events
-            displayEvents();
+            // Add CSS for animations
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes fadeIn {
+                    from { opacity: 0; transform: translateY(10px); }
+                    to { opacity: 1; transform: translateY(0); }
+                }
+                
+                @keyframes slideIn {
+                    from { transform: translateX(100%); opacity: 0; }
+                    to { transform: translateX(0); opacity: 1; }
+                }
+                
+                @keyframes fadeOut {
+                    from { transform: translateX(0); opacity: 1; }
+                    to { transform: translateX(100%); opacity: 0; }
+                }
+                
+                .event-card {
+                    animation: fadeIn 0.5s ease-out;
+                }
+                
+                /* Improved calendar styling */
+                input[type="date"], input[type="time"] {
+                    position: relative;
+                    cursor: pointer;
+                }
+                
+                input[type="date"]::-webkit-calendar-picker-indicator,
+                input[type="time"]::-webkit-calendar-picker-indicator {
+                    background-color: transparent;
+                    color: #4285f4;
+                    cursor: pointer;
+                    position: absolute;
+                    right: 10px;
+                    opacity: 0.7;
+                    transition: all 0.2s ease;
+                }
+                
+                input[type="date"]::-webkit-calendar-picker-indicator:hover,
+                input[type="time"]::-webkit-calendar-picker-indicator:hover {
+                    opacity: 1;
+                    transform: scale(1.1);
+                }
+            `;
+            document.head.appendChild(style);
         });
     </script>
 </body>

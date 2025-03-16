@@ -16,65 +16,13 @@ def load_events():
                 return json.load(f)
         except Exception as e:
             print(f"Error loading events: {e}")
-    
-    # Default events if file doesn't exist or has errors
-    return [
-        {
-            'id': 1,
-            'name': 'Orientation Day',
-            'venue_id': 1,
-            'venue_name': 'Main Building',
-            'date': '2023-09-01',
-            'time': '09:00',
-            'end_time': '12:00',
-            'description': 'Welcome event for new students',
-            'created_at': '2023-08-15 10:00:00'
-        },
-        {
-            'id': 2,
-            'name': 'Science Fair',
-            'venue_id': 3,
-            'venue_name': 'Science Block',
-            'date': '2023-09-15',
-            'time': '10:00',
-            'end_time': '16:00',
-            'description': 'Annual science exhibition',
-            'created_at': '2023-08-20 14:30:00'
-        },
-        {
-            'id': 3,
-            'name': 'Basketball Tournament',
-            'venue_id': 5,
-            'venue_name': 'Sports Complex',
-            'date': '2023-09-20',
-            'time': '14:00',
-            'end_time': '17:00',
-            'description': 'Inter-college basketball competition',
-            'created_at': '2023-08-25 09:15:00'
-        },
-        {
-            'id': 4,
-            'name': 'Art Exhibition',
-            'venue_id': 7,
-            'venue_name': 'Arts Center',
-            'date': '2023-09-25',
-            'time': '11:00',
-            'end_time': '18:00',
-            'description': 'Student art showcase',
-            'created_at': '2023-08-30 16:45:00'
-        },
-        {
-            'id': 5,
-            'name': 'Tech Symposium',
-            'venue_id': 6,
-            'venue_name': 'Engineering Building',
-            'date': '2023-10-05',
-            'time': '09:30',
-            'end_time': '15:30',
-            'description': 'Technology conference with guest speakers',
-            'created_at': '2023-09-01 11:20:00'
-        }
-    ]
+            # Create a new empty file if there's an error
+            save_events([])
+            return []
+    else:
+        # Create the file if it doesn't exist
+        save_events([])
+        return []
 
 # Helper function to save events to file
 def save_events(events):
@@ -88,6 +36,10 @@ def save_events(events):
     except Exception as e:
         print(f"Error saving events: {e}")
         return False
+
+# Initialize events file if it doesn't exist
+if not os.path.exists(EVENTS_FILE):
+    save_events([])
 
 # Routes
 @app.route('/')
@@ -293,23 +245,18 @@ def get_events():
             event_datetime = datetime.strptime(f"{event['date']} {event['time']}", '%Y-%m-%d %H:%M')
             event['time_left'] = (event_datetime - now).total_seconds()
         except ValueError:
-            # Handle invalid date/time format
             event['time_left'] = float('inf')
     
     # Apply filters if specified
     if filter_type == 'upcoming':
-        # Only include future events
         events_copy = [e for e in events_copy if e['time_left'] > 0]
     elif filter_type == 'past':
-        # Only include past events
         events_copy = [e for e in events_copy if e['time_left'] <= 0]
     
     # Apply sorting
     if sort_by == 'created_at':
-        # Sort by creation time (newest first)
         events_copy.sort(key=lambda x: x['created_at'], reverse=True)
     elif sort_by == 'expiry':
-        # Sort by event date/time (soonest first)
         events_copy.sort(key=lambda x: x['time_left'])
     
     # Remove temporary time_left field from response
@@ -331,11 +278,9 @@ def add_event():
         try:
             datetime.strptime(f"{data['date']} {data['time']}", '%Y-%m-%d %H:%M')
             
-            # Validate end_time if provided
             if 'end_time' in data:
                 datetime.strptime(f"{data['date']} {data['end_time']}", '%Y-%m-%d %H:%M')
                 
-                # Ensure end_time is after time
                 if data['end_time'] <= data['time']:
                     return jsonify({'error': 'End time must be after start time'}), 400
         except ValueError:
@@ -366,7 +311,7 @@ def add_event():
         if save_events(events):
             return jsonify(new_event), 201
         else:
-            return jsonify({'error': 'Failed to save event. Check server permissions.'}), 500
+            return jsonify({'error': 'Failed to save event'}), 500
         
     except Exception as e:
         print(f"Error in add_event: {str(e)}")
@@ -391,7 +336,7 @@ def delete_event(event_id):
         if save_events(events):
             return jsonify({'message': f'Event "{deleted_event["name"]}" deleted successfully', 'id': event_id}), 200
         else:
-            return jsonify({'error': 'Failed to save changes after deletion. Check server permissions.'}), 500
+            return jsonify({'error': 'Failed to save changes after deletion'}), 500
         
     except Exception as e:
         print(f"Error in delete_event: {str(e)}")

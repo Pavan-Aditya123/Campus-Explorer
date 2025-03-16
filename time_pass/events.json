@@ -50,36 +50,23 @@
     "created_at": "2023-09-01 11:20:00"
   },
   {
-    "id": 6,
-    "name": "bit by bit",
-    "venue_id": 7,
-    "venue_name": "Arts Center",
-    "date": "2025-03-18",
-    "time": "14:30",
-    "end_time": "17:30",
-    "description": "come and enjoy",
-    "created_at": "2025-03-15 22:15:24"
-  },
-  {
-    "id": 7,
-    "name": "quiz",
-    "venue_id": 2,
-    "venue_name": "Library",
-    "date": "2025-03-29",
-    "time": "15:30",
-    "end_time": "18:30",
-    "description": "enjoy it",
-    "created_at": "2025-03-15 22:23:58"
-  },
-  {
     "id": 8,
-    "name": "games",
-    "venue_id": 6,
-    "venue_name": "Engineering Building",
-    "date": "2025-04-17",
-    "time": "13:30",
-    "end_time": "17:30",
-    "description": "welcome",
-    "created_at": "2025-03-15 22:25:00"
+    "name": "kjbkjb",
+    "venue_name": "Canteen",
+    "date": "2025-04-10",
+    "time": "15:00",
+    "end_time": "21:00",
+    "description": "kjnklnkln",
+    "created_at": "2025-03-16 12:31:43"
+  },
+  {
+    "id": 9,
+    "name": "jigig",
+    "venue_name": "Academic Block",
+    "date": "2025-05-08",
+    "time": "16:00",
+    "end_time": "21:00",
+    "description": "kjbkbkjbhjjb",
+    "created_at": "2025-03-16 12:32:36"
   }
 ]
