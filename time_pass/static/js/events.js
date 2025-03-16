@@ -2,6 +2,35 @@
 let events = [];
 let venues = [];
 
+// Import predefined locations from script.js
+// This needs to be defined here since it's used in populateVenueDropdown
+const predefinedLocations = {
+    "Academic Block": [13.263018, 80.027427],
+    "Library": [13.262621, 80.026525],
+    "Canteen": [13.262856, 80.028401],
+    "Pond": [13.262198, 80.027673],
+    "AVV Gym for Girls": [13.262141, 80.026830],
+    "Chennai": [13.080917019874969, 80.26358605588356],
+    "Delhi": [28.675015901626473, 77.21675859763418],
+    "Mumbai": [19.07598369140625, 72.877685546875],
+    "Kolkata": [22.5726455078125, 88.3638671875],
+    "Hyderabad": [17.432607421875, 78.4736328125],
+    "Bengaluru": [12.971593933105469, 77.5945263671875],
+    "Junior Girls Hostel": [13.261993, 80.026421],
+    "Junior Boys Hostel": [13.261805, 80.028076],
+    "Lab Block": [13.262768, 80.028147],
+    "Mechanical Lab": [13.261205, 80.027488],
+    "Volley Ball Court": [13.261009, 80.027530],
+    "Basket Ball Court": [13.260909, 80.027256],
+    "Senior Girls Hostel": [13.260658, 80.028184],
+    "Senior Boys Hostel": [13.260550, 80.027272],
+    "2nd Year Boys Hostel": [13.259570, 80.026694],
+    "Amrita Indoor Stadium": [13.259880, 80.025990],
+    "AVV Gym for Boys": [13.260146, 80.026143],
+    "AVV Ground": [13.259708, 80.025416],
+    "Amrita Vishwa Vidyapeetham": [13.2630, 80.0274]
+};
+
 // Initialize events when the DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
     fetchEvents();
@@ -47,16 +76,20 @@ async function fetchEvents() {
 function populateVenueDropdown() {
     const venueSelect = document.getElementById('event-venue');
     
-    // Clear existing options (except the first one)
-    venueSelect.innerHTML = '<option value="">Select venue</option>';
+    // Clear existing options except the first one
+    while (venueSelect.options.length > 1) {
+        venueSelect.remove(1);
+    }
     
-    // Add options for each venue
-    venues.forEach(venue => {
-        const option = document.createElement('option');
-        option.value = venue.id;
-        option.textContent = venue.name;
-        venueSelect.appendChild(option);
-    });
+    // Add options from predefined locations
+    if (typeof predefinedLocations !== 'undefined') {
+        Object.keys(predefinedLocations).forEach(name => {
+            const option = document.createElement('option');
+            option.value = name;
+            option.textContent = name;
+            venueSelect.appendChild(option);
+        });
+    }
 }
 
 // Display events in the events list
@@ -196,7 +229,7 @@ function createEventCard(event) {
         </div>
         <div class="event-body">
             <p>${event.description || 'No description available.'}</p>
-            <button class="btn primary-btn navigate-btn" data-venue-id="${event.venue_id}">
+            <button class="btn primary-btn navigate-btn" data-venue-name="${event.venue_name}">
                 <i class="fas fa-directions"></i> Navigate to Venue
             </button>
         </div>
@@ -204,9 +237,9 @@ function createEventCard(event) {
     
     // Add event listener to navigate button
     eventCard.querySelector('.navigate-btn').addEventListener('click', (e) => {
-        const venueId = e.target.getAttribute('data-venue-id') || 
-                        e.target.closest('.navigate-btn').getAttribute('data-venue-id');
-        navigateToEvent(venueId);
+        const venueName = e.target.getAttribute('data-venue-name') || 
+                        e.target.closest('.navigate-btn').getAttribute('data-venue-name');
+        navigateToVenue(venueName);
     });
     
     // Add event listener to delete button
@@ -396,14 +429,14 @@ async function addEvent(e) {
     
     // Get form values
     const name = document.getElementById('event-name').value;
-    const venueId = document.getElementById('event-venue').value;
+    const venueName = document.getElementById('event-venue').value;
     const date = document.getElementById('event-date').value;
     const startTime = document.getElementById('event-start-time').value;
     const endTime = document.getElementById('event-end-time').value;
     const description = document.getElementById('event-description').value;
     
     // Validate form
-    if (!name || !venueId || !date || !startTime || !endTime) {
+    if (!name || !venueName || !date || !startTime || !endTime) {
         showNotification('Please fill in all required fields.', 'error');
         return;
     }
@@ -417,7 +450,7 @@ async function addEvent(e) {
     // Create event object (using start time as the main time for compatibility)
     const eventData = {
         name,
-        venue_id: parseInt(venueId),
+        venue_name: venueName,
         date,
         time: startTime,
         end_time: endTime,
@@ -531,18 +564,50 @@ function showNotification(message, type = 'info') {
     }, 5000);
 }
 
-// Navigate to event venue
-function navigateToEvent(venueId) {
-    // Scroll to map section with smooth animation
-    document.getElementById('map-section').scrollIntoView({ 
-        behavior: 'smooth',
-        block: 'start'
-    });
+// Function to navigate to a venue on the map
+function navigateToVenue(venueName) {
+    // Make sure map is visible
+    const mapElement = document.getElementById('map');
+    if (mapElement) {
+        mapElement.style.display = 'block';
+    }
     
-    // Highlight the venue on the map (this function should be defined in map.js)
-    if (typeof highlightLocation === 'function') {
-        setTimeout(() => {
-            highlightLocation(parseInt(venueId));
-        }, 1000); // Delay to allow scroll to complete
+    // Scroll to map section
+    document.getElementById('map-section').scrollIntoView({ behavior: 'smooth' });
+    
+    // Use the predefined locations from script.js
+    if (typeof predefinedLocations !== 'undefined' && predefinedLocations[venueName]) {
+        const coordinates = predefinedLocations[venueName];
+        
+        // Initialize map if it doesn't exist
+        if (typeof map === 'undefined' || map === null) {
+            initMap();
+        }
+        
+        // Center map on venue location
+        map.setView(coordinates, 16);
+        
+        // Add marker for the venue
+        if (venueMarker) {
+            map.removeLayer(venueMarker);
+        }
+        
+        venueMarker = L.marker(coordinates, {
+            icon: L.divIcon({
+                className: 'custom-marker',
+                html: '<i class="fas fa-map-marker-alt"></i>',
+                iconSize: [30, 30],
+                iconAnchor: [15, 30]
+            })
+        }).addTo(map);
+        
+        // Add popup with venue name
+        venueMarker.bindPopup(`<b>${venueName}</b>`).openPopup();
+        
+        // Show success notification
+        showNotification(`Navigating to ${venueName}`, 'info');
+    } else {
+        console.error(`Venue location not found: ${venueName}`);
+        showNotification(`Venue location not found: ${venueName}`, 'error');
     }
 } 

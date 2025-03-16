@@ -323,7 +323,7 @@ def get_events():
 def add_event():
     data = request.json
     
-    if not all(key in data for key in ['name', 'venue_id', 'date', 'time']):
+    if not all(key in data for key in ['name', 'venue_name', 'date', 'time']):
         return jsonify({'error': 'Missing required fields'}), 400
     
     try:
@@ -341,19 +341,6 @@ def add_event():
         except ValueError:
             return jsonify({'error': 'Invalid date or time format. Use YYYY-MM-DD for date and HH:MM for time'}), 400
         
-        # Validate venue_id is an integer
-        try:
-            venue_id = int(data['venue_id'])
-        except ValueError:
-            return jsonify({'error': 'venue_id must be an integer'}), 400
-        
-        # Get venue name
-        locations = get_locations().json
-        venue = next((loc for loc in locations if loc['id'] == venue_id), None)
-        
-        if not venue:
-            return jsonify({'error': 'Invalid venue ID'}), 400
-        
         # Load existing events
         events = load_events()
         
@@ -364,8 +351,7 @@ def add_event():
         new_event = {
             'id': new_id,
             'name': data['name'],
-            'venue_id': venue_id,
-            'venue_name': venue['name'],
+            'venue_name': data['venue_name'],
             'date': data['date'],
             'time': data['time'],
             'end_time': data.get('end_time', ''),
