@@ -50,23 +50,23 @@
     "created_at": "2023-09-01 11:20:00"
   },
   {
-    "id": 8,
-    "name": "kjbkjb",
-    "venue_name": "Canteen",
-    "date": "2025-04-10",
-    "time": "15:00",
-    "end_time": "21:00",
-    "description": "kjnklnkln",
-    "created_at": "2025-03-16 12:31:43"
+    "id": 6,
+    "name": "mod",
+    "venue_name": "AVV Gym for Girls",
+    "date": "2025-03-26",
+    "time": "12:00",
+    "end_time": "16:00",
+    "description": "hgdbdbdb",
+    "created_at": "2025-03-19 18:13:26"
   },
   {
-    "id": 9,
-    "name": "jigig",
-    "venue_name": "Academic Block",
-    "date": "2025-05-08",
-    "time": "16:00",
-    "end_time": "21:00",
-    "description": "kjbkbkjbhjjb",
-    "created_at": "2025-03-16 12:32:36"
+    "id": 7,
+    "name": "hbdfbd",
+    "venue_name": "AVV Gym for Boys",
+    "date": "2025-03-28",
+    "time": "12:00",
+    "end_time": "19:00",
+    "description": "fjyjmffm",
+    "created_at": "2025-03-19 18:13:41"
   }
 ]

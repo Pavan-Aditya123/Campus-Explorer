@@ -5,6 +5,7 @@ let pathLayer;
 let routeLine;
 let mapInitialized = false;
 let tspPath = null;
+let currentRouteRequest = null; // To cancel previous requests
 
 // Predefined locations with latitude & longitude
 const predefinedLocations = {
@@ -50,11 +51,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Initialize the Leaflet map
 function initMap() {
-    if (mapInitialized) return;
+    if (mapInitialized) {
+        console.log("Map already initialized");
+        return;
+    }
     
     try {
         // Create map centered at Amrita Vishwa Vidyapeetham
-        map = L.map('map').setView([13.2630, 80.0274], 17);
+        map = L.map('map', {
+            preferCanvas: true, // Use Canvas renderer for better performance
+            maxZoom: 19,
+            minZoom: 15
+        }).setView([13.2630, 80.0274], 17);
         
         // Add OpenStreetMap tile layer
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -548,64 +556,220 @@ function showNotification(message, type = 'info') {
     }, 5000);
 }
 
-// Navigate to venue
+// Clear all map layers except the base tile layer
+function clearMapLayers() {
+    if (!map) return;
+    
+    map.eachLayer((layer) => {
+        if (layer instanceof L.Marker || layer instanceof L.Polyline) {
+            map.removeLayer(layer);
+        }
+    });
+    
+    if (routeLine) {
+        map.removeLayer(routeLine);
+        routeLine = null;
+    }
+    
+    if (tspPath) {
+        map.removeLayer(tspPath);
+        tspPath = null;
+    }
+}
+
+// Navigate to venue with optimized performance
 function navigateToVenue(venueName) {
     console.log("Navigate to venue called for:", venueName);
     
-    // Make sure the map is visible
+    // Cancel any ongoing route request
+    if (currentRouteRequest) {
+        currentRouteRequest.abort();
+    }
+    
     const mapElement = document.getElementById('map');
     if (!mapElement) {
-        console.error("Map element not found");
+        showNotification("Map element not found", "error");
         return;
     }
     
     mapElement.style.display = 'block';
     
-    // Initialize map if needed
+    if (!predefinedLocations[venueName]) {
+        showNotification(`Location not found: ${venueName}`, "error");
+        return;
+    }
+    
+    const venueCoords = predefinedLocations[venueName];
+    
     if (!mapInitialized) {
-        console.log("Initializing map for navigation...");
         initMap();
-        
-        // Wait for map to initialize before navigating
-        setTimeout(() => {
-            console.log("Navigating to venue...");
-            focusOnLocation(venueName);
-            // Force map to refresh
-            if (map) map.invalidateSize();
-            
-            // Remove any TSP path if it exists
-            if (tspPath) {
-                map.removeLayer(tspPath);
-            }
-        }, 500);
+    }
+    
+    // Clear existing layers before adding new ones
+    clearMapLayers();
+    
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+            async (position) => {
+                try {
+                    const userLat = position.coords.latitude;
+                    const userLng = position.coords.longitude;
+                    const userCoords = [userLat, userLng];
+                    
+                    // Add markers with optimized icons
+                    const userMarker = L.marker(userCoords, {
+                        icon: L.divIcon({
+                            html: '<i class="fas fa-user-circle" style="color: #34a853;"></i>',
+                            className: 'user-marker',
+                            iconSize: [24, 24]
+                        })
+                    }).addTo(map);
+                    
+                    const venueMarker = L.marker(venueCoords, {
+                        icon: L.divIcon({
+                            html: '<i class="fas fa-map-marker-alt" style="color: #ea4335;"></i>',
+                            className: 'venue-marker',
+                            iconSize: [24, 24]
+                        })
+                    }).addTo(map);
+                    
+                    // Format coordinates for API
+                    const startCoordsFormatted = `${userLng},${userLat}`;
+                    const endCoordsFormatted = `${venueCoords[1]},${venueCoords[0]}`;
+                    
+                    showNotification("Finding the best route...", "info");
+                    
+                    // Create AbortController for fetch
+                    const controller = new AbortController();
+                    currentRouteRequest = controller;
+                    
+                    const apiKey = "5b3ce3597851110001cf6248c0943ad6dce547e59c20450a5741cbaa";
+                    const response = await fetch(
+                        `https://api.openrouteservice.org/v2/directions/foot-walking?api_key=${apiKey}&start=${startCoordsFormatted}&end=${endCoordsFormatted}`,
+                        { signal: controller.signal }
+                    );
+                    
+                    if (!response.ok) {
+                        throw new Error('Route API request failed');
+                    }
+                    
+                    const data = await response.json();
+                    
+                    // Draw route with optimized styling
+                    const routeCoords = data.features[0].geometry.coordinates.map(coord => [coord[1], coord[0]]);
+                    routeLine = L.polyline(routeCoords, {
+                        color: '#4285f4',
+                        weight: 4,
+                        opacity: 0.8,
+                        smoothFactor: 1
+                    }).addTo(map);
+                    
+                    // Fit bounds with padding
+                    map.fitBounds(routeLine.getBounds(), { padding: [50, 50] });
+                    
+                    // Update route information
+                    updateRouteInfo(data, venueName);
+                    
+                    showNotification(`Route to ${venueName} found!`, "success");
+                    
+                } catch (error) {
+                    if (error.name === 'AbortError') {
+                        console.log('Route request cancelled');
+                        return;
+                    }
+                    
+                    console.error("Error fetching route:", error);
+                    showNotification("Error finding route. Showing direct path.", "error");
+                    
+                    // Fallback to direct path
+                    showDirectPath(userCoords, venueCoords, venueName);
+                }
+            },
+            (error) => {
+                console.error("Location error:", error);
+                showNotification("Please enable location services.", "error");
+                focusOnLocation(venueName);
+            },
+            { enableHighAccuracy: true, timeout: 5000 }
+        );
     } else {
-        console.log("Map already initialized, navigating to venue...");
-        if (map) {
-            map.invalidateSize();
-            focusOnLocation(venueName);
-            
-            // Remove any TSP path if it exists
-            if (tspPath) {
-                map.removeLayer(tspPath);
-            }
-        }
+        showNotification("Geolocation not supported", "error");
+        focusOnLocation(venueName);
     }
     
     // Scroll to map section
-    setTimeout(() => {
-        try {
-            const mapSection = document.getElementById('map-section');
-            if (mapSection) {
-                console.log("Scrolling to map section...");
-                mapSection.scrollIntoView({ 
-                    behavior: 'smooth',
-                    block: 'start'
-                });
-            }
-        } catch (error) {
-            console.error("Error scrolling to map section:", error);
+    requestAnimationFrame(() => {
+        const mapSection = document.getElementById('map-section');
+        if (mapSection) {
+            mapSection.scrollIntoView({ behavior: 'smooth' });
         }
-    }, 300);
+    });
+}
+
+// Update route information in the UI
+function updateRouteInfo(data, venueName) {
+    const distance = (data.features[0].properties.summary.distance / 1000).toFixed(2);
+    const duration = Math.ceil(data.features[0].properties.summary.duration / 60);
+    const steps = data.features[0].properties.segments[0].steps;
+    
+    // Update route info panel
+    const routeInfo = document.getElementById('route-info');
+    if (routeInfo) {
+        routeInfo.style.display = 'block';
+        routeInfo.innerHTML = `
+            <h4 style="margin-top: 0; color: #4285f4;">Route Information</h4>
+            <p><strong>To:</strong> ${venueName}</p>
+            <p><strong>Distance:</strong> ${distance} km</p>
+            <p><strong>Time:</strong> ${duration} min (walking)</p>
+        `;
+    }
+    
+    // Update directions panel
+    const routeDirections = document.getElementById('route-directions');
+    if (routeDirections) {
+        let directionsList = `<h4 style="color: #4285f4;">Directions</h4><ul class="directions-list">`;
+        steps.forEach((step, index) => {
+            directionsList += `
+                <li class="direction-step">
+                    <span class="step-number">${index + 1}</span>
+                    <span class="step-instruction">${step.instruction}</span>
+                    <span class="step-distance">${(step.distance / 1000).toFixed(2)} km</span>
+                </li>
+            `;
+        });
+        directionsList += '</ul>';
+        routeDirections.innerHTML = directionsList;
+        routeDirections.style.display = 'block';
+    }
+}
+
+// Show direct path when route finding fails
+function showDirectPath(userCoords, venueCoords, venueName) {
+    const directPath = L.polyline([userCoords, venueCoords], {
+        color: '#4285f4',
+        weight: 3,
+        opacity: 0.6,
+        dashArray: '8, 8'
+    }).addTo(map);
+    
+    map.fitBounds(directPath.getBounds(), { padding: [50, 50] });
+    
+    const directDistance = calculateDistance(
+        userCoords[0], userCoords[1],
+        venueCoords[0], venueCoords[1]
+    );
+    
+    const routeInfo = document.getElementById('route-info');
+    if (routeInfo) {
+        routeInfo.style.display = 'block';
+        routeInfo.innerHTML = `
+            <h4 style="margin-top: 0; color: #4285f4;">Direct Route</h4>
+            <p><strong>To:</strong> ${venueName}</p>
+            <p><strong>Direct Distance:</strong> ${directDistance.toFixed(2)} km</p>
+            <p><strong>Est. Time:</strong> ${Math.ceil(directDistance * 15)} min</p>
+            <p class="warning">* Actual walking distance may vary</p>
+        `;
+    }
 }
 
 // Make navigateToVenue function globally accessible

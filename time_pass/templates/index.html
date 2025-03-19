@@ -836,75 +836,6 @@
             transform: translateY(-2px);
             box-shadow: 0 4px 12px rgba(52, 168, 83, 0.3);
         }
-
-        /* Map Markers and Path Animations */
-        .pulse-marker {
-            animation: pulse-animation 2s infinite;
-        }
-        
-        @keyframes pulse-animation {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.2); }
-            100% { transform: scale(1); }
-        }
-        
-        .bounce-marker {
-            animation: bounce-animation 1s infinite;
-        }
-        
-        @keyframes bounce-animation {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
-        }
-        
-        .path-line {
-            stroke-dasharray: 10, 10;
-            animation: dash 30s linear infinite;
-        }
-        
-        @keyframes dash {
-            to { stroke-dashoffset: -1000; }
-        }
-        
-        .distance-marker {
-            background-color: rgba(66, 133, 244, 0.8);
-            color: white;
-            padding: 3px 8px;
-            border-radius: 12px;
-            font-size: 12px;
-            font-weight: bold;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-            white-space: nowrap;
-        }
-        
-        .directions-list li {
-            padding: 10px 0;
-            border-bottom: 1px solid #dadce0;
-            position: relative;
-        }
-        
-        .directions-list li:last-child {
-            border-bottom: none;
-        }
-        
-        .directions-list li:before {
-            content: '';
-            position: absolute;
-            left: -20px;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 8px;
-            height: 8px;
-            background-color: #4285f4;
-            border-radius: 50%;
-        }
-        
-        .step-distance {
-            display: block;
-            color: #5f6368;
-            font-size: 0.85em;
-            margin-top: 4px;
-        }
     </style>
 </head>
 <body>
@@ -934,25 +865,44 @@
     </section>
 
     <!-- Map Section -->
-    <section id="map-section" style="padding: 60px 0; background-color: #f8f9fa;">
-        <div class="container" style="max-width: 1200px; margin: 0 auto; padding: 0 20px;">
-            <div class="section-header" style="text-align: center; margin-bottom: 40px;">
-                <h2 style="font-size: 2.5rem; color: #202124; margin-bottom: 15px;">Campus Map</h2>
-                <p style="color: #5f6368; font-size: 1.1rem; max-width: 700px; margin: 0 auto;">Explore our campus with an interactive map. Find buildings, facilities, and navigate easily.</p>
+    <section id="map-section" class="map-section">
+        <div class="section-header" data-aos="fade-up">
+            <h2>Campus Map</h2>
+            <p>Find your way around campus with our interactive map</p>
         </div>
         
-            <div class="map-container" style="position: relative; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); margin-bottom: 30px;">
-                <div id="map" style="height: 500px; width: 100%;"></div>
+        <div class="map-container" data-aos="fade-up">
+            <div class="map-controls">
+                <button id="explore-btn" class="btn primary-btn">Explore Now (Show TSP Route)</button>
+                <button id="locate-btn" class="btn secondary-btn">Locate Amrita Vishwa Vidyapeetham</button>
             </div>
             
-            <div class="map-info" style="display: flex; flex-wrap: wrap; gap: 20px;">
-                <div id="route-info" style="flex: 1; min-width: 300px; background-color: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); display: none;">
-                    <!-- Route information will be displayed here -->
+            <div id="map" style="display: none; height: 500px; width: 100%; margin-top: 20px; border-radius: 10px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);"></div>
+            
+            <div id="route-form" class="route-form" data-aos="fade-up">
+                <h3>Find Route Between Two Locations</h3>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="start-location">Start Location</label>
+                        <select id="start-location" required>
+                            <option value="">Select start location</option>
+                        </select>
                     </div>
                     
-                <div id="route-directions" style="flex: 2; min-width: 300px; background-color: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); display: none;">
-                    <!-- Directions will be displayed here -->
+                    <div class="form-group">
+                        <label for="end-location">Destination</label>
+                        <select id="end-location" required>
+                            <option value="">Select destination</option>
+                        </select>
                     </div>
+                    
+                    <div class="form-group">
+                        <button id="findRouteBtn" class="btn primary-btn">Find Route</button>
+                    </div>
+                </div>
+                
+                <div id="route-info" class="route-info" style="display: none;"></div>
+                <div id="route-directions" class="route-directions" style="display: none;"></div>
             </div>
         </div>
     </section>
@@ -1006,6 +956,17 @@
                                 <option value="Canteen">Canteen</option>
                                 <option value="Lab Block">Lab Block</option>
                                 <option value="Basket Ball Court">Basket Ball Court</option>
+                                <option value="Junior Girls Hostel">Junior Girls Hostel</option>
+                                <option value="Junior Boys Hostel">Junior Boys Hostel</option>
+                                <option value="Senior Girls Hostel">Senior Girls Hostel</option>
+                                <option value="Senior Boys Hostel">Senior Boys Hostel</option>
+                                <option value="Mechanical Lab">Mechanical Lab</option>
+                                <option value="Volley Ball Court">Volley Ball Court</option>
+                                <option value="2nd Year Boys Hostel">2nd Year Boys Hostel</option>
+                                <option value="Amrita Indoor Stadium">Amrita Indoor Stadium</option>
+                                <option value="AVV Gym for Boys">AVV Gym for Boys</option>
+                                <option value="AVV Gym for Girls">AVV Gym for Girls</option>
+                                <option value="AVV Ground">AVV Ground</option>
                             </select>
                         </div>
                         
@@ -1080,9 +1041,6 @@
     <!-- Leaflet JS -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     
-    <!-- Leaflet Polyline Decorator -->
-    <script src="https://unpkg.com/leaflet-polylinedecorator/dist/leaflet.polylineDecorator.js"></script>
-    
     <!-- AOS Animation Library -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
     
@@ -1145,24 +1103,6 @@
             addTab.addEventListener('click', function() {
                 switchTab(addTab, addPane);
             });
-
-            // Helper function to calculate distance between two coordinates (Haversine formula)
-            function calculateDistance(lat1, lon1, lat2, lon2) {
-                const R = 6371; // Radius of the earth in km
-                const dLat = deg2rad(lat2 - lat1);
-                const dLon = deg2rad(lon2 - lon1);
-                const a = 
-                    Math.sin(dLat/2) * Math.sin(dLat/2) +
-                    Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) * 
-                    Math.sin(dLon/2) * Math.sin(dLon/2); 
-                const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
-                const distance = R * c; // Distance in km
-                return distance;
-            }
-            
-            function deg2rad(deg) {
-                return deg * (Math.PI/180);
-            }
 
             // Event handling
             let events = [];
@@ -1611,17 +1551,7 @@
                         const venue = locations.find(loc => loc.name === venueName);
                         
                         if (!venue) {
-                            // Try to find a partial match if exact match not found
-                            const partialMatch = locations.find(loc => 
-                                loc.name.toLowerCase().includes(venueName.toLowerCase()) || 
-                                venueName.toLowerCase().includes(loc.name.toLowerCase())
-                            );
-                            
-                            if (partialMatch) {
-                                venue = partialMatch;
-                            } else {
-                                throw new Error(`Venue "${venueName}" not found`);
-                            }
+                            throw new Error(`Venue "${venueName}" not found`);
                         }
                         
                         // Get user's current location
@@ -1652,9 +1582,9 @@
                                         window.campusMap = map;
                                     }
                                     
-                                    // Add user marker with animation
+                                    // Add user marker
                                     const userIcon = L.divIcon({
-                                        html: '<div class="pulse-marker"><i class="fas fa-user-circle" style="font-size: 24px; color: #34a853;"></i></div>',
+                                        html: '<i class="fas fa-user-circle" style="font-size: 24px; color: #34a853;"></i>',
                                         className: 'user-marker',
                                         iconSize: [24, 24],
                                         iconAnchor: [12, 12]
@@ -1667,9 +1597,9 @@
                                     
                                     userMarker.bindPopup('<b>Your Location</b>').openPopup();
                                     
-                                    // Add venue marker with animation
+                                    // Add venue marker
                                     const venueIcon = L.divIcon({
-                                        html: '<div class="bounce-marker"><i class="fas fa-map-marker-alt" style="font-size: 28px; color: #ea4335;"></i></div>',
+                                        html: '<i class="fas fa-map-marker-alt" style="font-size: 28px; color: #ea4335;"></i>',
                                         className: 'venue-marker',
                                         iconSize: [28, 28],
                                         iconAnchor: [14, 28]
@@ -1682,201 +1612,42 @@
                                     
                                     venueMarker.bindPopup(`<b>${venue.name}</b><br>${venue.description || ''}`);
                                     
-                                    // Try to find a path using our API
-                                    fetch(`/api/shortest_path?start_id=1&end_id=${venue.id}`)
-                                        .then(response => response.json())
-                                        .then(pathData => {
-                                            // If we have a path from the API, use it
-                                            if (pathData && pathData.path && pathData.path.length > 1) {
-                                                const pathCoordinates = pathData.path.map(loc => [loc.latitude, loc.longitude]);
-                                                
-                                                // Add user location to the beginning
-                                                pathCoordinates.unshift([userLat, userLng]);
-                                                
-                                                drawPath(map, pathCoordinates);
-                                            } else {
-                                                // Fallback to direct path
-                                                const pathCoordinates = [
-                                                    [userLat, userLng],
-                                                    [venue.latitude, venue.longitude]
-                                                ];
-                                                
-                                                drawPath(map, pathCoordinates);
-                                            }
-                                        })
-                                        .catch(error => {
-                                            console.error('Error getting path from API:', error);
-                                            
-                                            // Fallback to direct path
-                                            const pathCoordinates = [
-                                                [userLat, userLng],
-                                                [venue.latitude, venue.longitude]
-                                            ];
-                                            
-                                            drawPath(map, pathCoordinates);
-                                        });
+                                    // Draw a path between user and venue
+                                    const pathCoordinates = [
+                                        [userLat, userLng],
+                                        [venue.latitude, venue.longitude]
+                                    ];
                                     
-                                    // Function to draw path with animation
-                                    function drawPath(map, coordinates) {
-                                        // Create the path with animated dash
-                                        const path = L.polyline(coordinates, {
-                                            color: '#4285f4',
-                                            weight: 5,
-                                            opacity: 0.8,
-                                            lineCap: 'round',
-                                            lineJoin: 'round',
-                                            dashArray: '10, 10',
-                                            className: 'path-line'
-                                        }).addTo(map);
-                                        
-                                        // Add animated arrow along the path
-                                        const arrowHead = L.polylineDecorator(path, {
-                                            patterns: [
-                                                {
-                                                    offset: '60%', 
-                                                    repeat: 100,
-                                                    symbol: L.Symbol.arrowHead({
-                                                        pixelSize: 15,
-                                                        polygon: false,
-                                                        pathOptions: {
-                                                            color: '#4285f4',
-                                                            weight: 5,
-                                                            fillOpacity: 1
-                                                        }
-                                                    })
-                                                }
-                                            ]
-                                        }).addTo(map);
-                                        
-                                        // Add distance markers
-                                        if (coordinates.length > 2) {
-                                            // For complex paths, add distance markers at each waypoint
-                                            let totalDistance = 0;
-                                            
-                                            for (let i = 1; i < coordinates.length; i++) {
-                                                const segmentDistance = calculateDistance(
-                                                    coordinates[i-1][0], coordinates[i-1][1],
-                                                    coordinates[i][0], coordinates[i][1]
-                                                );
-                                                
-                                                totalDistance += segmentDistance;
-                                                
-                                                // Add marker at waypoints
-                                                if (i < coordinates.length - 1) {
-                                                    L.marker(coordinates[i], {
-                                                        icon: L.divIcon({
-                                                            html: `<div class="distance-marker">${segmentDistance.toFixed(2)} km</div>`,
-                                                            className: 'distance-marker-container',
-                                                            iconSize: [60, 20]
-                                                        })
-                                                    }).addTo(map);
-                                                }
-                                            }
-                                        } else {
-                                            // For direct path, calculate the total distance
-                                            const distance = calculateDistance(
-                                                coordinates[0][0], coordinates[0][1],
-                                                coordinates[1][0], coordinates[1][1]
-                                            );
-                                            
-                                            // Add distance marker in the middle of the path
-                                            const midPoint = [
-                                                (coordinates[0][0] + coordinates[1][0]) / 2,
-                                                (coordinates[0][1] + coordinates[1][1]) / 2
-                                            ];
-                                            
-                                            L.marker(midPoint, {
-                                                icon: L.divIcon({
-                                                    html: `<div class="distance-marker">${distance.toFixed(2)} km</div>`,
-                                                    className: 'distance-marker-container',
-                                                    iconSize: [60, 20]
-                                                })
-                                            }).addTo(map);
-                                        }
-                                        
-                                        // Fit map to show the entire path
-                                        map.fitBounds(path.getBounds(), {
-                                            padding: [50, 50]
-                                        });
-                                        
-                                        // Calculate total distance
-                                        let totalDistance = 0;
-                                        for (let i = 1; i < coordinates.length; i++) {
-                                            totalDistance += calculateDistance(
-                                                coordinates[i-1][0], coordinates[i-1][1],
-                                                coordinates[i][0], coordinates[i][1]
-                                            );
-                                        }
-                                        
-                                        // Show route info
-                                        const routeInfo = document.getElementById('route-info');
-                                        if (routeInfo) {
-                                            routeInfo.style.display = 'block';
-                                            routeInfo.innerHTML = `
-                                                <h4 style="margin-top: 0; color: #4285f4;">Route Information</h4>
-                                                <p><strong>From:</strong> Your Location</p>
-                                                <p><strong>To:</strong> ${venue.name}</p>
-                                                <p><strong>Distance:</strong> ${totalDistance.toFixed(2)} km</p>
-                                                <p><strong>Estimated Time:</strong> ${Math.ceil(totalDistance * 15)} minutes (walking)</p>
-                                                <div class="route-actions" style="margin-top: 15px; display: flex; gap: 10px;">
-                                                    <button onclick="window.open('https://www.google.com/maps/dir/?api=1&destination=${venue.latitude},${venue.longitude}', '_blank')" class="btn primary-btn" style="flex: 1; padding: 8px 12px; font-size: 0.9rem;">
-                                                        <i class="fab fa-google"></i> Open in Google Maps
-                                                    </button>
-                                                </div>
-                                            `;
-                                        }
-                                        
-                                        // Add directions list
-                                        const routeDirections = document.getElementById('route-directions');
-                                        if (routeDirections) {
-                                            routeDirections.style.display = 'block';
-                                            
-                                            let directionsHTML = '<h4 style="margin-top: 0; color: #4285f4;">Directions</h4>';
-                                            directionsHTML += '<ol class="directions-list">';
-                                            
-                                            // Start with user location
-                                            directionsHTML += `<li>Start from <strong>Your Location</strong></li>`;
-                                            
-                                            // Add waypoints if we have a complex path
-                                            if (coordinates.length > 2) {
-                                                for (let i = 1; i < coordinates.length - 1; i++) {
-                                                    // Find the location name if available
-                                                    const waypoint = locations.find(loc => 
-                                                        loc.latitude === coordinates[i][0] && 
-                                                        loc.longitude === coordinates[i][1]
-                                                    );
-                                                    
-                                                    const waypointName = waypoint ? waypoint.name : `Waypoint ${i}`;
-                                                    const distance = calculateDistance(
-                                                        coordinates[i-1][0], coordinates[i-1][1],
-                                                        coordinates[i][0], coordinates[i][1]
-                                                    );
-                                                    
-                                                    directionsHTML += `
-                                                        <li>
-                                                            Continue to <strong>${waypointName}</strong>
-                                                            <span class="step-distance">${distance.toFixed(2)} km</span>
-                                                        </li>
-                                                    `;
-                                                }
-                                            }
-                                            
-                                            // Add final destination
-                                            const finalDistance = calculateDistance(
-                                                coordinates[coordinates.length-2][0], coordinates[coordinates.length-2][1],
-                                                coordinates[coordinates.length-1][0], coordinates[coordinates.length-1][1]
-                                            );
-                                            
-                                            directionsHTML += `
-                                                <li>
-                                                    Arrive at <strong>${venue.name}</strong>
-                                                    <span class="step-distance">${finalDistance.toFixed(2)} km</span>
-                                                </li>
-                                            `;
-                                            
-                                            directionsHTML += '</ol>';
-                                            routeDirections.innerHTML = directionsHTML;
-                                        }
+                                    const path = L.polyline(pathCoordinates, {
+                                        color: '#4285f4',
+                                        weight: 5,
+                                        opacity: 0.7,
+                                        dashArray: '10, 10',
+                                        className: 'path-line'
+                                    }).addTo(map);
+                                    
+                                    // Fit map to show both markers
+                                    map.fitBounds(path.getBounds(), {
+                                        padding: [50, 50]
+                                    });
+                                    
+                                    // Calculate distance
+                                    const distance = calculateDistance(
+                                        userLat, userLng,
+                                        venue.latitude, venue.longitude
+                                    );
+                                    
+                                    // Show route info
+                                    const routeInfo = document.getElementById('route-info');
+                                    if (routeInfo) {
+                                        routeInfo.style.display = 'block';
+                                        routeInfo.innerHTML = `
+                                            <h4 style="margin-top: 0; color: #4285f4;">Route Information</h4>
+                                            <p><strong>From:</strong> Your Location</p>
+                                            <p><strong>To:</strong> ${venue.name}</p>
+                                            <p><strong>Distance:</strong> ${distance.toFixed(2)} km</p>
+                                            <p><strong>Estimated Time:</strong> ${Math.ceil(distance * 15)} minutes (walking)</p>
+                                        `;
                                     }
                                     
                                     // Show success notification
@@ -1900,7 +1671,7 @@
                                     }
                                     
                                     const venueIcon = L.divIcon({
-                                        html: '<div class="bounce-marker"><i class="fas fa-map-marker-alt" style="font-size: 28px; color: #ea4335;"></i></div>',
+                                        html: '<i class="fas fa-map-marker-alt" style="font-size: 28px; color: #ea4335;"></i>',
                                         className: 'venue-marker',
                                         iconSize: [28, 28],
                                         iconAnchor: [14, 28]
@@ -1930,6 +1701,24 @@
                     });
             }
             
+            // Helper function to calculate distance between two coordinates (Haversine formula)
+            function calculateDistance(lat1, lon1, lat2, lon2) {
+                const R = 6371; // Radius of the earth in km
+                const dLat = deg2rad(lat2 - lat1);
+                const dLon = deg2rad(lon2 - lon1);
+                const a = 
+                    Math.sin(dLat/2) * Math.sin(dLat/2) +
+                    Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) * 
+                    Math.sin(dLon/2) * Math.sin(dLon/2); 
+                const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
+                const distance = R * c; // Distance in km
+                return distance;
+            }
+            
+            function deg2rad(deg) {
+                return deg * (Math.PI/180);
+            }
+
             // Load events on page load
             loadEvents('created_at');
             
