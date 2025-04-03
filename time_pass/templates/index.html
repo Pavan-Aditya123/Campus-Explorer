@@ -23,6 +23,9 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/material_blue.css">
     
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    
     <style>
         /* Global Styles */
         :root {
@@ -1531,6 +1534,13 @@
             
             // Function to navigate to venue
             function navigateToVenue(venueName) {
+                // Check if the global function from map.js is available
+                if (window.navigateToVenue && window.navigateToVenue !== navigateToVenue) {
+                    window.navigateToVenue(venueName);
+                    return;
+                }
+                
+                // Fallback implementation
                 // Show loading notification
                 showNotification(`Finding route to ${venueName}...`, 'info');
                 

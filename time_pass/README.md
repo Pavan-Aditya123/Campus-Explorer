@@ -20,10 +20,8 @@ A comprehensive campus navigation and event management system for students.
 - **Frontend**: HTML, CSS, JavaScript
 - **Map Integration**: Leaflet.js
 - **Backend**: Python (Flask)
-- **Database**: MySQL
-- **Algorithms**:
-  - Floyd-Warshall Algorithm (for shortest path)
-  - Sorting Algorithms (Merge Sort / Quick Sort) for event management
+- **Data Storage**: JSON
+- **Algorithms**: Floyd-Warshall Algorithm (for shortest path)
 
 ## Installation
 
@@ -32,20 +30,15 @@ A comprehensive campus navigation and event management system for students.
    ```
    pip install -r requirements.txt
    ```
-3. Set up the MySQL database:
-   ```
-   mysql -u username -p < database/schema.sql
-   ```
-4. Start the Flask server:
+3. Start the Flask server:
    ```
    python app.py
    ```
-5. Open your browser and navigate to `http://localhost:5000`
+4. Open your browser and navigate to `http://localhost:5000`
 
 ## Project Structure
 - `/static` - Frontend assets (CSS, JS, images)
 - `/templates` - HTML templates
-- `/database` - Database schema and sample data
-- `/algorithms` - Implementation of algorithms
 - `app.py` - Main Flask application
+- `events.json` - Events data storage
 - `requirements.txt` - Python dependencies 

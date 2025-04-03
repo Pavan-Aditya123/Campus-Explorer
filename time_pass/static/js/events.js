@@ -244,9 +244,7 @@ function createEventCard(event) {
     
     // Add event listener to delete button
     eventCard.querySelector('.delete-btn').addEventListener('click', () => {
-        if (confirm(`Are you sure you want to delete the event "${event.name}"?`)) {
-            deleteEvent(event.id);
-        }
+        deleteEvent(event.id);
     });
     
     return eventCard;
@@ -255,6 +253,73 @@ function createEventCard(event) {
 // Delete an event
 async function deleteEvent(eventId) {
     try {
+        // Find the event card
+        const eventCard = document.querySelector(`.event-card[data-event-id="${eventId}"]`);
+        if (!eventCard) {
+            showNotification('Event not found.', 'error');
+            return;
+        }
+        
+        // Add a shake animation to confirm deletion intent
+        eventCard.classList.add('shake-animation');
+        
+        // Confirm deletion
+        const confirmed = await new Promise(resolve => {
+            // Create a custom confirmation dialog
+            const confirmDialog = document.createElement('div');
+            confirmDialog.className = 'confirm-dialog';
+            confirmDialog.innerHTML = `
+                <div class="confirm-dialog-content">
+                    <div class="confirm-dialog-header">
+                        <i class="fas fa-trash-alt"></i>
+                        <h4>Confirm Deletion</h4>
+                    </div>
+                    <p>Are you sure you want to delete this event?</p>
+                    <div class="confirm-buttons">
+                        <button class="btn cancel-btn">
+                            <i class="fas fa-times"></i> Cancel
+                        </button>
+                        <button class="btn delete-confirm-btn">
+                            <i class="fas fa-trash-alt"></i> Delete
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(confirmDialog);
+            
+            // Animate dialog appearance
+            setTimeout(() => {
+                confirmDialog.classList.add('show');
+                
+                // Add event listeners to buttons
+                confirmDialog.querySelector('.cancel-btn').addEventListener('click', () => {
+                    confirmDialog.classList.remove('show');
+                    setTimeout(() => confirmDialog.remove(), 300);
+                    resolve(false);
+                    // Remove shake animation
+                    eventCard.classList.remove('shake-animation');
+                });
+                
+                confirmDialog.querySelector('.delete-confirm-btn').addEventListener('click', () => {
+                    confirmDialog.classList.remove('show');
+                    setTimeout(() => confirmDialog.remove(), 300);
+                    resolve(true);
+                });
+            }, 10);
+        });
+        
+        if (!confirmed) {
+            return;
+        }
+        
+        // Store event position for confetti effect
+        const rect = eventCard.getBoundingClientRect();
+        
+        // Apply deletion animation with fade out and slide up
+        eventCard.classList.add('delete-animation');
+        
+        // Make the API request while the animation is running
         const response = await fetch(`/api/events/${eventId}`, {
             method: 'DELETE'
         });
@@ -262,35 +327,93 @@ async function deleteEvent(eventId) {
         const data = await response.json();
         
         if (response.ok) {
-            // Find the event card and add fade-out animation
-            const eventCard = document.querySelector(`.event-card[data-event-id="${eventId}"]`);
-            if (eventCard) {
-                eventCard.style.animation = 'fadeOut 0.5s ease forwards';
-                
-                // Wait for animation to complete before removing from DOM
-                setTimeout(() => {
-                    // Remove event from the events array
-                    events = events.filter(event => event.id !== eventId);
-                    
-                    // Update the display
-                    displayEvents();
-                    
-                    // Show success notification
-                    showNotification(data.message || 'Event deleted successfully!', 'success');
-                }, 500);
-            } else {
-                // If card not found, just update the data
-                events = events.filter(event => event.id !== eventId);
-                displayEvents();
-                showNotification(data.message || 'Event deleted successfully!', 'success');
-            }
+            // Wait for animation to complete (500ms for animation + 100ms buffer)
+            await new Promise(resolve => setTimeout(resolve, 600));
+            
+            // Add confetti effect for successful deletion
+            createConfettiEffect(rect);
+            
+            // Remove event from the events array
+            events = events.filter(event => event.id !== eventId);
+            
+            // Update the display
+            displayEvents();
+            
+            // Show success notification with animation
+            showNotification(data.message || 'Event deleted successfully!', 'success');
         } else {
+            // If deletion failed, remove animation classes
+            eventCard.classList.remove('delete-animation', 'shake-animation');
             showNotification(data.error || 'Failed to delete event.', 'error');
         }
     } catch (error) {
         console.error('Error deleting event:', error);
+        
+        // Reset any animations on error
+        const eventCard = document.querySelector(`.event-card[data-event-id="${eventId}"]`);
+        if (eventCard) {
+            eventCard.classList.remove('delete-animation', 'shake-animation');
+        }
+        
         showNotification('Failed to delete event. Please try again later.', 'error');
     }
+}
+
+// Create confetti effect when an event is deleted
+function createConfettiEffect(rect) {
+    const confettiContainer = document.createElement('div');
+    confettiContainer.className = 'confetti-container';
+    confettiContainer.style.position = 'fixed';
+    confettiContainer.style.top = `${rect.top}px`;
+    confettiContainer.style.left = `${rect.left}px`;
+    confettiContainer.style.width = `${rect.width}px`;
+    confettiContainer.style.height = `${rect.height}px`;
+    confettiContainer.style.pointerEvents = 'none';
+    confettiContainer.style.zIndex = '9999';
+    
+    // Create confetti pieces with different shapes
+    const colors = ['#4285f4', '#34a853', '#fbbc05', '#ea4335'];
+    const shapes = ['circle', 'square', 'triangle'];
+    
+    for (let i = 0; i < 100; i++) {
+        const confetti = document.createElement('div');
+        confetti.className = 'confetti';
+        
+        // Randomly select shape
+        const shape = shapes[Math.floor(Math.random() * shapes.length)];
+        confetti.classList.add(`confetti-${shape}`);
+        
+        // Random color
+        const color = colors[Math.floor(Math.random() * colors.length)];
+        confetti.style.backgroundColor = color;
+        
+        // Random position
+        confetti.style.left = `${Math.random() * 100}%`;
+        confetti.style.top = `${Math.random() * 50}%`;
+        
+        // Random size
+        const size = Math.random() * 8 + 5;
+        confetti.style.width = `${size}px`;
+        confetti.style.height = `${size}px`;
+        
+        // Random rotation and initial transform
+        const rotation = Math.random() * 360;
+        confetti.style.transform = `rotate(${rotation}deg)`;
+        
+        // Random animation duration and delay
+        const duration = Math.random() * 2 + 1;
+        const delay = Math.random() * 0.5;
+        confetti.style.animation = `confetti-fall ${duration}s ${delay}s ease-out forwards, confetti-rotate ${duration * 0.5}s ${delay}s linear infinite`;
+        
+        confettiContainer.appendChild(confetti);
+    }
+    
+    document.body.appendChild(confettiContainer);
+    
+    // Remove confetti after animation
+    setTimeout(() => {
+        confettiContainer.remove();
+    }, 3000);
 }
 
 // Set up event listeners
@@ -566,6 +689,14 @@ function showNotification(message, type = 'info') {
 
 // Function to navigate to a venue on the map
 function navigateToVenue(venueName) {
+    // Check if global navigateToVenue function exists from map.js
+    if (window.navigateToVenue && window.navigateToVenue !== navigateToVenue) {
+        // Call the global function from map.js
+        window.navigateToVenue(venueName);
+        return;
+    }
+    
+    // Fallback implementation if global function doesn't exist
     // Make sure map is visible
     const mapElement = document.getElementById('map');
     if (mapElement) {
