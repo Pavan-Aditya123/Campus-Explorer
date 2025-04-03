@@ -76,83 +76,6 @@ function initMap() {
         // Add markers for all predefined locations
         addMarkersToMap();
         
-        // Try to get user's location with better accuracy options
-        if (navigator.geolocation) {
-            const geoOptions = {
-                enableHighAccuracy: true,
-                timeout: 10000,
-                maximumAge: 0 // Don't use cached position
-            };
-            
-            navigator.geolocation.getCurrentPosition(
-                (position) => {
-                    // Log accuracy for debugging
-                    console.log("Location accuracy:", position.coords.accuracy, "meters");
-                    
-                    const userLocation = {
-                        latitude: position.coords.latitude,
-                        longitude: position.coords.longitude,
-                        accuracy: position.coords.accuracy
-                    };
-                    
-                    // Add a marker for user's location with accuracy indicator
-                    const userMarker = L.marker([userLocation.latitude, userLocation.longitude], {
-                        icon: L.divIcon({
-                            className: 'custom-marker user-marker',
-                            html: '<div class="user-location-marker"><i class="fas fa-user-circle"></i></div>',
-                            iconSize: [40, 40],
-                            iconAnchor: [20, 20]
-                        })
-                    }).addTo(map);
-                    
-                    // Show accuracy information in popup
-                    let accuracyText = "High accuracy";
-                    if (userLocation.accuracy > 100) {
-                        accuracyText = "Low accuracy (±" + Math.round(userLocation.accuracy) + "m)";
-                    } else if (userLocation.accuracy > 30) {
-                        accuracyText = "Medium accuracy (±" + Math.round(userLocation.accuracy) + "m)";
-                    } else {
-                        accuracyText = "High accuracy (±" + Math.round(userLocation.accuracy) + "m)";
-                    }
-                    
-                    userMarker.bindPopup(`<b>Your Location</b><br>${accuracyText}`).openPopup();
-                    
-                    // Optional: draw accuracy circle
-                    if (userLocation.accuracy > 10) {
-                        const accuracyCircle = L.circle([userLocation.latitude, userLocation.longitude], {
-                            radius: userLocation.accuracy,
-                            color: '#4285f4',
-                            fillColor: '#4285f4',
-                            fillOpacity: 0.1,
-                            weight: 1
-                        }).addTo(map);
-                    }
-                    
-                    // Pan to user location with appropriate zoom based on accuracy
-                    let zoomLevel = 17;
-                    if (userLocation.accuracy > 500) zoomLevel = 15;
-                    else if (userLocation.accuracy > 100) zoomLevel = 16;
-                    
-                    map.setView([userLocation.latitude, userLocation.longitude], zoomLevel);
-                },
-                (error) => {
-                    console.error('Error getting user location:', error);
-                    let errorMsg = "Unable to get your location.";
-                    
-                    if (error.code === 1) {
-                        errorMsg = "Location access denied. Please enable location services.";
-                    } else if (error.code === 2) {
-                        errorMsg = "Unable to determine your location. Check your device settings.";
-                    } else if (error.code === 3) {
-                        errorMsg = "Location request timed out. Please try again.";
-                    }
-                    
-                    showNotification(errorMsg, "error");
-                },
-                geoOptions
-            );
-        }
-        
         mapInitialized = true;
         console.log("Map initialized successfully");
     } catch (error) {
@@ -725,14 +648,11 @@ function setupEventListeners() {
 
     if (exploreBtn && mapElement) {
         exploreBtn.addEventListener('click', function() {
-            console.log("Explore button clicked");
-            
             // Make sure the map is visible
             mapElement.style.display = 'block';
             
             // Initialize map if it doesn't exist
             if (!mapInitialized) {
-                console.log("Initializing map...");
                 initMap();
                 
                 // Force map to refresh
@@ -745,7 +665,6 @@ function setupEventListeners() {
                 }, 300);
             } else {
                 // If map already exists, just make sure it's visible and refreshed
-                console.log("Map already initialized, refreshing...");
                 if (map) {
                     map.invalidateSize();
                     // Clear any existing route
@@ -763,30 +682,23 @@ function setupEventListeners() {
                 mapSection.scrollIntoView({ behavior: 'smooth' });
             }
         });
-    } else {
-        console.error("Explore button or map element not found");
     }
 
     if (locateBtn) {
         locateBtn.addEventListener('click', function() {
-            console.log("Locate button clicked");
-            
             // Make sure the map is visible
             if (mapElement) {
                 mapElement.style.display = 'block';
             } else {
-                console.error("Map element not found");
                 return;
             }
             
             // Initialize map if it doesn't exist
             if (!mapInitialized) {
-                console.log("Initializing map for locate...");
                 initMap();
                 
                 // Wait for map to initialize before focusing
                 setTimeout(() => {
-                    console.log("Focusing on Amrita Vishwa Vidyapeetham...");
                     focusOnLocation("Amrita Vishwa Vidyapeetham");
                     // Force map to refresh
                     if (map) map.invalidateSize();
@@ -798,7 +710,6 @@ function setupEventListeners() {
                 }, 500);
             } else {
                 // If map already exists, just focus on the location
-                console.log("Map already initialized, focusing on location...");
                 if (map) {
                     map.invalidateSize();
                     focusOnLocation("Amrita Vishwa Vidyapeetham");
@@ -810,8 +721,6 @@ function setupEventListeners() {
                 }
             }
         });
-    } else {
-        console.error("Locate button not found");
     }
     
     // Add event listeners to navigate buttons in event cards
@@ -1074,16 +983,25 @@ function navigateToVenue(venueName) {
     // Clear existing layers before adding new ones
     clearMapLayers();
     
-    // Show loading animation on map
-    const loadingOverlay = L.DomUtil.create('div', 'map-loading-overlay');
-    loadingOverlay.innerHTML = '<div class="loading-spinner"></div><p>Finding the best route to ' + venueName + '...</p>';
-    mapElement.appendChild(loadingOverlay);
+    // Use Academic Block as the starting point (simulates user's location on campus)
+    const userCoords = predefinedLocations["Academic Block"];
     
-    // Always use a point on campus for testing purposes
-    // This ensures the application works even if geolocation fails
-    const defaultUserCoords = predefinedLocations["Academic Block"];
+    // Add user marker
+    const userMarker = L.marker(userCoords, {
+        icon: L.divIcon({
+            html: '<div class="user-location-marker"><i class="fas fa-user-circle"></i></div>',
+            className: 'user-marker-container',
+            iconSize: [40, 40]
+        })
+    }).addTo(map);
     
-    // Add marker for venue immediately for better UX
+    userMarker.bindTooltip('Your Location (Campus)', {
+        permanent: true,
+        direction: 'top',
+        className: 'user-location-tooltip'
+    });
+    
+    // Add venue marker
     const venueMarker = L.marker(venueCoords, {
         icon: L.divIcon({
             html: '<div class="venue-location-marker"><i class="fas fa-map-marker-alt"></i></div>',
@@ -1098,371 +1016,55 @@ function navigateToVenue(venueName) {
         className: 'venue-location-tooltip'
     });
     
-    // Fit map to venue immediately
-    map.setView(venueCoords, 17);
+    // Fit bounds to show both markers
+    map.fitBounds(L.latLngBounds([userCoords, venueCoords]).pad(0.3));
     
-    if (navigator.geolocation) {
-        // Show "Getting your location" notification
-        showNotification("Getting your current location...", "info");
-        
-        // Use more accurate geolocation options
-        const geoOptions = {
-            enableHighAccuracy: true,
-            timeout: 10000,
-            maximumAge: 0  // Don't use cached position
-        };
-        
-        // Try to get the user's actual location with a shorter timeout
-        navigator.geolocation.getCurrentPosition(
-            async (position) => {
-                try {
-                    // Get precise user location
-                    const userLat = position.coords.latitude;
-                    const userLng = position.coords.longitude;
-                    const userCoords = [userLat, userLng];
-                    
-                    console.log("Detected user location:", userCoords);
-                    
-                    // IMPORTANT: For the Amrita campus demo, we'll use either:
-                    // 1. The user's actual location if it's within ~1km of campus
-                    // 2. A default location on campus otherwise
-                    let effectiveUserCoords;
-                    
-                    // Check if user is close to campus (within 1km of Amrita Vishwa Vidyapeetham)
-                    const campusMainCoords = predefinedLocations["Amrita Vishwa Vidyapeetham"];
-                    const distanceToCampus = calculateDistance(
-                        userCoords, 
-                        campusMainCoords
-                    );
-                    
-                    console.log("Distance to campus:", distanceToCampus, "km");
-                    
-                    // If user is within ~2km of campus, use their actual location
-                    // Otherwise, use Academic Block as the starting point
-                    if (distanceToCampus <= 2) {
-                        effectiveUserCoords = userCoords;
-                        console.log("Using actual user location (close to campus)");
-                    } else {
-                        // For demo: If not on campus, use Academic Block as starting location
-                        effectiveUserCoords = predefinedLocations["Academic Block"];
-                        console.log("Using campus location (user is far from campus)");
-                        showNotification("For demo purposes: Using campus location as starting point.", "info");
-                    }
-                    
-                    // Add marker for user's location
-                    const userMarker = L.marker(effectiveUserCoords, {
-                        icon: L.divIcon({
-                            html: '<div class="user-location-marker"><i class="fas fa-user-circle"></i></div>',
-                            className: 'user-marker-container',
-                            iconSize: [40, 40]
-                        })
-                    }).addTo(map);
-                    
-                    userMarker.bindTooltip('Your Location', {
-                        permanent: true,
-                        direction: 'top',
-                        className: 'user-location-tooltip'
-                    });
-                    
-                    // Show temporary direct line between points while loading the real route
-                    const tempLine = L.polyline([effectiveUserCoords, venueCoords], {
-                        color: '#dadce0',
-                        weight: 3,
-                        dashArray: '5, 10',
-                        opacity: 0.6
-                    }).addTo(map);
-                    
-                    // Fit bounds to show both markers
-                    map.fitBounds(L.latLngBounds([effectiveUserCoords, venueCoords]).pad(0.3));
-                    
-                    // Format coordinates for API - Note that the order is longitude,latitude for ORS API
-                    const startCoordsFormatted = `${effectiveUserCoords[1]},${effectiveUserCoords[0]}`;
-                    const endCoordsFormatted = `${venueCoords[1]},${venueCoords[0]}`;
-                    
-                    showNotification("Finding the best walking route...", "info");
-                    
-                    // Create AbortController for fetch
-                    const controller = new AbortController();
-                    currentRouteRequest = controller;
-                    
-                    // Use OpenRouteService API to calculate an actual walking route along roads and paths
-                    const apiKey = "5b3ce3597851110001cf6248c0943ad6dce547e59c20450a5741cbaa";
-                    const url = `https://api.openrouteservice.org/v2/directions/foot-walking?api_key=${apiKey}&start=${startCoordsFormatted}&end=${endCoordsFormatted}`;
-                    
-                    console.log("Requesting route from API:", url);
-                    
-                    const response = await fetch(url, { signal: controller.signal });
-                    
-                    if (!response.ok) {
-                        throw new Error(`Route API request failed with status: ${response.status}`);
-                    }
-                    
-                    const data = await response.json();
-                    console.log("Route data received:", data);
-                    
-                    // Remove temporary line
-                    map.removeLayer(tempLine);
-                    
-                    // Remove loading overlay
-                    if (loadingOverlay.parentNode) {
-                        loadingOverlay.parentNode.removeChild(loadingOverlay);
-                    }
-                    
-                    // Draw route with optimized styling and animation
-                    const routeCoords = data.features[0].geometry.coordinates.map(coord => [coord[1], coord[0]]);
-                    
-                    // Create the polyline with initial empty array
-                    routeLine = L.polyline([], {
-                        color: '#4285f4',
-                        weight: 7,
-                        opacity: 1,
-                        smoothFactor: 1,
-                        lineCap: 'round',
-                        lineJoin: 'round',
-                        className: 'route-path'
-                    }).addTo(map);
-                    
-                    // Calculate the route length for adjusting animation speed
-                    const routeLength = routeCoords.length;
-                    const animationSpeed = Math.max(5, Math.min(30, Math.floor(200 / routeLength))); // Speed between 5-30ms
-                    
-                    // Animate the path drawing
-                    let i = 0;
-                    const animateInterval = setInterval(() => {
-                        if (i < routeCoords.length) {
-                            const currentPath = routeCoords.slice(0, i + 1);
-                            routeLine.setLatLngs(currentPath);
-                            i++;
-                            
-                            // While drawing, adjust map view to follow the path
-                            if (i % 5 === 0 && i < routeCoords.length - 10) {
-                                map.panTo(routeCoords[i]);
-                            }
-                        } else {
-                            clearInterval(animateInterval);
-                            
-                            // Fit bounds with padding after animation completes
-                            map.fitBounds(routeLine.getBounds(), { padding: [50, 50] });
-                            
-                            // Update route information
-                            const routeInfo = updateRouteInfo(data, venueName);
-                            
-                            // Show floating route card with details
-                            showRouteCard(data, venueName, effectiveUserCoords, venueCoords);
-                            
-                            showNotification(`Route to ${venueName} found! ${routeInfo.distance} km, ${routeInfo.duration} min walk`, "success");
-                        }
-                    }, animationSpeed); // Adjust timing based on route length
-                    
-                    // Add click event to the path
-                    routeLine.on('click', function() {
-                        // Get a point in the middle of the path for the popup
-                        const middlePoint = routeCoords[Math.floor(routeCoords.length / 2)];
-                        
-                        // Show enhanced route popup
-                        const distance = (data.features[0].properties.summary.distance / 1000).toFixed(2);
-                        const duration = Math.ceil(data.features[0].properties.summary.duration / 60);
-                        
-                        const popupContent = `
-                            <div class="enhanced-route-popup">
-                                <div class="route-popup-header">
-                                    <i class="fas fa-walking"></i>
-                                    <h4>Walking Route</h4>
-                                </div>
-                                <div class="route-popup-body">
-                                    <div class="route-popup-destination">
-                                        <i class="fas fa-map-marker-alt"></i>
-                                        <div class="destination-name">${venueName}</div>
-                                    </div>
-                                    <div class="route-popup-stats">
-                                        <div class="route-stat">
-                                            <i class="fas fa-route"></i>
-                                            <div class="route-stat-value">${distance} km</div>
-                                        </div>
-                                        <div class="route-stat">
-                                            <i class="fas fa-clock"></i>
-                                            <div class="route-stat-value">${duration} minutes</div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="route-popup-action">
-                                    <button class="route-details-btn" id="route-details-btn">
-                                        <i class="fas fa-info-circle"></i> Show Details
-                                    </button>
-                                </div>
-                            </div>
-                        `;
-                        
-                        const popup = L.popup({
-                            className: 'enhanced-route-popup-container',
-                            maxWidth: 300
-                        })
-                        .setLatLng(middlePoint)
-                        .setContent(popupContent)
-                        .openOn(map);
-                        
-                        // Add event listener to the details button
-                        setTimeout(() => {
-                            document.getElementById('route-details-btn').addEventListener('click', function() {
-                                // Close the popup
-                                map.closePopup(popup);
-                                
-                                // Show the route card if it's hidden
-                                const routeCard = document.getElementById('floating-route-card');
-                                if (routeCard) {
-                                    routeCard.classList.add('visible');
-                                } else {
-                                    // Recreate if not found
-                                    showRouteCard(data, venueName, effectiveUserCoords, venueCoords);
-                                }
-                            });
-                        }, 100);
-                    });
-                    
-                } catch (error) {
-                    if (error.name === 'AbortError') {
-                        console.log('Route request cancelled');
-                        return;
-                    }
-                    
-                    // Remove loading overlay if it exists
-                    if (loadingOverlay.parentNode) {
-                        loadingOverlay.parentNode.removeChild(loadingOverlay);
-                    }
-                    
-                    console.error("Error fetching route:", error);
-                    showNotification("Error finding route. Showing direct path instead.", "error");
-                    
-                    // Use default location on campus in case of error
-                    const fallbackUserCoords = defaultUserCoords;
-                    
-                    // Add user marker for fallback location
-                    const userMarker = L.marker(fallbackUserCoords, {
-                        icon: L.divIcon({
-                            html: '<div class="user-location-marker"><i class="fas fa-user-circle"></i></div>',
-                            className: 'user-marker-container',
-                            iconSize: [40, 40]
-                        })
-                    }).addTo(map);
-                    
-                    userMarker.bindTooltip('Your Location (Campus)', {
-                        permanent: true,
-                        direction: 'top',
-                        className: 'user-location-tooltip'
-                    });
-                    
-                    // Fallback to direct path
-                    showDirectPath(fallbackUserCoords, venueCoords, venueName);
-                }
-            },
-            (error) => {
-                // Remove loading overlay if it exists
-                if (loadingOverlay.parentNode) {
-                    loadingOverlay.parentNode.removeChild(loadingOverlay);
-                }
-                
-                console.error("Location error:", error);
-                let errorMsg = "Unable to get your location. Using campus location instead.";
-                
-                showNotification(errorMsg, "info");
-                
-                // Use default location on campus as fallback
-                const fallbackUserCoords = defaultUserCoords;
-                
-                // Add user marker for fallback location
-                const userMarker = L.marker(fallbackUserCoords, {
-                    icon: L.divIcon({
-                        html: '<div class="user-location-marker"><i class="fas fa-user-circle"></i></div>',
-                        className: 'user-marker-container',
-                        iconSize: [40, 40]
-                    })
-                }).addTo(map);
-                
-                userMarker.bindTooltip('Your Location (Campus)', {
-                    permanent: true,
-                    direction: 'top',
-                    className: 'user-location-tooltip'
-                });
-                
-                // Format coordinates for API - Note that the order is longitude,latitude for ORS API
-                const startCoordsFormatted = `${fallbackUserCoords[1]},${fallbackUserCoords[0]}`;
-                const endCoordsFormatted = `${venueCoords[1]},${venueCoords[0]}`;
-                
-                // Use OpenRouteService API with fallback coordinates
-                const apiKey = "5b3ce3597851110001cf6248c0943ad6dce547e59c20450a5741cbaa";
-                const url = `https://api.openrouteservice.org/v2/directions/foot-walking?api_key=${apiKey}&start=${startCoordsFormatted}&end=${endCoordsFormatted}`;
-                
-                // Fetch route from API using fallback location
-                fetch(url)
-                    .then(response => response.json())
-                    .then(data => {
-                        // Remove loading overlay
-                        if (loadingOverlay.parentNode) {
-                            loadingOverlay.parentNode.removeChild(loadingOverlay);
-                        }
-                        
-                        // Extract route coordinates
-                        const routeCoords = data.features[0].geometry.coordinates.map(coord => [coord[1], coord[0]]);
-                        
-                        // Create the polyline
-                        routeLine = L.polyline(routeCoords, {
-                            color: '#4285f4',
-                            weight: 7,
-                            opacity: 1,
-                            smoothFactor: 1,
-                            className: 'route-path'
-                        }).addTo(map);
-                        
-                        // Fit bounds to show the entire route
-                        map.fitBounds(routeLine.getBounds().pad(0.2));
-                        
-                        // Update route information
-                        const routeInfo = updateRouteInfo(data, venueName);
-                        
-                        // Show floating route card with details
-                        showRouteCard(data, venueName, fallbackUserCoords, venueCoords);
-                        
-                        showNotification(`Campus route to ${venueName} found! ${routeInfo.distance} km, ${routeInfo.duration} min walk`, "success");
-                    })
-                    .catch(error => {
-                        console.error("Error fetching route:", error);
-                        showNotification("Error finding route. Showing direct path.", "error");
-                        
-                        // Fallback to direct path
-                        showDirectPath(fallbackUserCoords, venueCoords, venueName);
-                    });
-            },
-            geoOptions
-        );
-    } else {
-        // Browser doesn't support geolocation - use campus location
-        if (loadingOverlay.parentNode) {
-            loadingOverlay.parentNode.removeChild(loadingOverlay);
-        }
-        
-        showNotification("Geolocation not supported. Using campus location.", "info");
-        
-        // Use default location on campus as fallback
-        const fallbackUserCoords = defaultUserCoords;
-        
-        // Add user marker for fallback location
-        const userMarker = L.marker(fallbackUserCoords, {
-            icon: L.divIcon({
-                html: '<div class="user-location-marker"><i class="fas fa-user-circle"></i></div>',
-                className: 'user-marker-container',
-                iconSize: [40, 40]
-            })
-        }).addTo(map);
-        
-        userMarker.bindTooltip('Your Location (Campus)', {
-            permanent: true,
-            direction: 'top',
-            className: 'user-location-tooltip'
+    // Format coordinates for API - Note that the order is longitude,latitude for ORS API
+    const startCoordsFormatted = `${userCoords[1]},${userCoords[0]}`;
+    const endCoordsFormatted = `${venueCoords[1]},${venueCoords[0]}`;
+    
+    showNotification("Finding the best walking route...", "info");
+    
+    // Use OpenRouteService API to calculate an actual walking route along roads and paths
+    const apiKey = "5b3ce3597851110001cf6248c0943ad6dce547e59c20450a5741cbaa";
+    const url = `https://api.openrouteservice.org/v2/directions/foot-walking?api_key=${apiKey}&start=${startCoordsFormatted}&end=${endCoordsFormatted}`;
+    
+    console.log("Requesting route from API:", url);
+    
+    // Fetch route from API
+    fetch(url)
+        .then(response => response.json())
+        .then(data => {
+            // Extract route coordinates
+            const routeCoords = data.features[0].geometry.coordinates.map(coord => [coord[1], coord[0]]);
+            
+            // Create the polyline
+            routeLine = L.polyline(routeCoords, {
+                color: '#4285f4',
+                weight: 7,
+                opacity: 1,
+                smoothFactor: 1,
+                className: 'route-path'
+            }).addTo(map);
+            
+            // Fit bounds to show the entire route
+            map.fitBounds(routeLine.getBounds().pad(0.2));
+            
+            // Update route information
+            const routeInfo = updateRouteInfo(data, venueName);
+            
+            // Show floating route card with details
+            showRouteCard(data, venueName, userCoords, venueCoords);
+            
+            showNotification(`Route to ${venueName} found! ${routeInfo.distance} km, ${routeInfo.duration} min walk`, "success");
+        })
+        .catch(error => {
+            console.error("Error fetching route:", error);
+            showNotification("Error finding route. Showing direct path.", "error");
+            
+            // Fallback to direct path
+            showDirectPath(userCoords, venueCoords, venueName);
         });
-        
-        // Show direct path
-        showDirectPath(fallbackUserCoords, venueCoords, venueName);
-    }
 }
 
 // Show floating route card with details
@@ -1530,16 +1132,11 @@ function showRouteCard(data, venueName, userCoords, venueCoords) {
     
     // Add event listeners
     routeCard.querySelector('.route-card-close').addEventListener('click', () => {
-        routeCard.classList.add('slide-out');
-        setTimeout(() => {
-            routeCard.remove();
-        }, 300);
+        routeCard.remove();
     });
     
-    // Animate in
-    setTimeout(() => {
-        routeCard.classList.add('visible');
-    }, 100);
+    // Display card
+    routeCard.classList.add('visible');
     
     return routeCard;
 }
