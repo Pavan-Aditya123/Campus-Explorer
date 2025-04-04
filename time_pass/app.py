@@ -48,105 +48,85 @@ def index():
 
 @app.route('/api/locations', methods=['GET'])
 def get_locations():
-    # Hardcoded locations data since we're not using a database
+    # Return the predefined locations from the frontend
     locations = [
         {
-            'id': 1,
-            'name': 'Main Building',
-            'latitude': 40.7128,
-            'longitude': -74.0060,
-            'description': 'The main administrative building'
+            'name': 'Academic Block',
+            'coordinates': [13.263018, 80.027427]
         },
         {
-            'id': 2,
             'name': 'Library',
-            'latitude': 40.7130,
-            'longitude': -74.0065,
-            'description': 'Central library with study spaces'
+            'coordinates': [13.262621, 80.026525]
         },
         {
-            'id': 3,
-            'name': 'Science Block',
-            'latitude': 40.7135,
-            'longitude': -74.0070,
-            'description': 'Houses science departments and labs'
+            'name': 'Canteen',
+            'coordinates': [13.262856, 80.028401]
         },
         {
-            'id': 4,
-            'name': 'Student Center',
-            'latitude': 40.7125,
-            'longitude': -74.0055,
-            'description': 'Hub for student activities and dining'
+            'name': 'Pond',
+            'coordinates': [13.262198, 80.027673]
         },
         {
-            'id': 5,
-            'name': 'Sports Complex',
-            'latitude': 40.7120,
-            'longitude': -74.0050,
-            'description': 'Indoor and outdoor sports facilities'
+            'name': 'AVV Gym for Girls',
+            'coordinates': [13.262141, 80.026830]
         },
         {
-            'id': 6,
-            'name': 'Engineering Building',
-            'latitude': 40.7140,
-            'longitude': -74.0075,
-            'description': 'Home to engineering departments'
+            'name': 'Junior Girls Hostel',
+            'coordinates': [13.261993, 80.026421]
         },
         {
-            'id': 7,
-            'name': 'Arts Center',
-            'latitude': 40.7145,
-            'longitude': -74.0080,
-            'description': 'Theaters and art studios'
+            'name': 'Junior Boys Hostel',
+            'coordinates': [13.261805, 80.028076]
         },
         {
-            'id': 8,
-            'name': 'Dormitory A',
-            'latitude': 40.7150,
-            'longitude': -74.0085,
-            'description': 'Student housing'
+            'name': 'Lab Block',
+            'coordinates': [13.262768, 80.028147]
         },
         {
-            'id': 9,
-            'name': 'Dormitory B',
-            'latitude': 40.7155,
-            'longitude': -74.0090,
-            'description': 'Student housing'
+            'name': 'Mechanical Lab',
+            'coordinates': [13.261205, 80.027488]
         },
         {
-            'id': 10,
-            'name': 'Cafeteria',
-            'latitude': 40.7127,
-            'longitude': -74.0058,
-            'description': 'Main dining hall'
+            'name': 'Volley Ball Court',
+            'coordinates': [13.261009, 80.027530]
+        },
+        {
+            'name': 'Basket Ball Court',
+            'coordinates': [13.260909, 80.027256]
+        },
+        {
+            'name': 'Senior Girls Hostel',
+            'coordinates': [13.260658, 80.028184]
+        },
+        {
+            'name': 'Senior Boys Hostel',
+            'coordinates': [13.260550, 80.027272]
+        },
+        {
+            'name': '2nd Year Boys Hostel',
+            'coordinates': [13.259570, 80.026694]
+        },
+        {
+            'name': 'Amrita Indoor Stadium',
+            'coordinates': [13.259880, 80.025990]
+        },
+        {
+            'name': 'AVV Gym for Boys',
+            'coordinates': [13.260146, 80.026143]
+        },
+        {
+            'name': 'AVV Ground',
+            'coordinates': [13.259708, 80.025416]
         }
     ]
     return jsonify(locations)
 
 @app.route('/api/paths', methods=['GET'])
 def get_paths():
-    # Hardcoded paths data
-    paths = [
-        {'id': 1, 'start_location_id': 1, 'end_location_id': 2, 'distance': 100},
-        {'id': 2, 'start_location_id': 2, 'end_location_id': 1, 'distance': 100},
-        {'id': 3, 'start_location_id': 1, 'end_location_id': 4, 'distance': 80},
-        {'id': 4, 'start_location_id': 4, 'end_location_id': 1, 'distance': 80},
-        {'id': 5, 'start_location_id': 2, 'end_location_id': 3, 'distance': 120},
-        {'id': 6, 'start_location_id': 3, 'end_location_id': 2, 'distance': 120},
-        {'id': 7, 'start_location_id': 3, 'end_location_id': 6, 'distance': 150},
-        {'id': 8, 'start_location_id': 6, 'end_location_id': 3, 'distance': 150},
-        {'id': 9, 'start_location_id': 4, 'end_location_id': 5, 'distance': 200},
-        {'id': 10, 'start_location_id': 5, 'end_location_id': 4, 'distance': 200},
-        {'id': 11, 'start_location_id': 4, 'end_location_id': 10, 'distance': 50},
-        {'id': 12, 'start_location_id': 10, 'end_location_id': 4, 'distance': 50},
-        {'id': 13, 'start_location_id': 6, 'end_location_id': 7, 'distance': 100},
-        {'id': 14, 'start_location_id': 7, 'end_location_id': 6, 'distance': 100},
-        {'id': 15, 'start_location_id': 7, 'end_location_id': 8, 'distance': 180},
-        {'id': 16, 'start_location_id': 8, 'end_location_id': 7, 'distance': 180},
-        {'id': 17, 'start_location_id': 8, 'end_location_id': 9, 'distance': 80},
-        {'id': 18, 'start_location_id': 9, 'end_location_id': 8, 'distance': 80}
-    ]
-    return jsonify(paths)
+    # This endpoint is not currently used in the project
+    # The path finding functionality is handled directly in the frontend using Leaflet.js
+    # and the predefined locations from map.js
+    return jsonify({'message': 'This endpoint is deprecated. Path finding is handled client-side.'}), 410
 
 @app.route('/api/shortest_path', methods=['GET'])
 def get_shortest_path():
